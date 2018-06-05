@@ -1,4 +1,4 @@
-package vk
+package vk_cli
 
 import (
 	"golang.org/x/oauth2"

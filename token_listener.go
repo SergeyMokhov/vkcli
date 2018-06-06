@@ -42,23 +42,21 @@ func startServer() (srv *http.Server) {
 	return srv
 }
 
-func fileExisfts(path string) (bool){
+func fileExists(path string) (bool) {
 	if _, err := os.Stat(path); err == nil {
 		return true
 	}
 	return false
 }
 
-func certificateExist() (bool){
+func certificateExist() (bool) {
 	var cert bool
 	var key bool
 
-	cert = fileExisfts(data+"/cert.pem")
-	key = fileExisfts(data+"/key.pem")
+	cert = fileExists(data + "/cert.pem")
+	key = fileExists(data + "/key.pem")
 
 	return cert && key
-
-	//TODO test this function.
 }
 
 func (tl *TokenListener) Stop() (error) {

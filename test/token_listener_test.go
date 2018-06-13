@@ -1,10 +1,11 @@
-package vk_cli
+package test
 
 import (
 	"testing"
 	"time"
 	"net/http"
 	"strings"
+	"github.com/SergeyMokhov/vkcli"
 )
 
 func TestNewTokenListener(t *testing.T) {
@@ -34,10 +35,10 @@ func post(addr string) (error) {
 	return err
 }
 
-func startAndVerifyTokenListener(t *testing.T, errMsg string) (*TokenListener) {
+func startAndVerifyTokenListener(t *testing.T, errMsg string) (listener *vkcli.TokenListener) {
 	timeout := 10 * time.Millisecond
 
-	tl, err := NewTokenListener()
+	tl, err := vkcli.NewTokenListener()
 	if err != nil {
 		t.Fatalf("Failed to start Token Listener. %v %v", errMsg, err)
 	}

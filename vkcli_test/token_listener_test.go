@@ -1,4 +1,4 @@
-package test
+package vkcli_test
 
 import (
 	"testing"
@@ -31,7 +31,7 @@ func TestShouldStopListener(t *testing.T) {
 }
 
 func post(addr string) (error) {
-	_, err := http.Post("http://"+addr, "text/html", strings.NewReader("test"))
+	_, err := http.Post("http://"+addr, "text/html", strings.NewReader("vkcli_test"))
 	return err
 }
 
@@ -46,7 +46,7 @@ func startAndVerifyTokenListener(t *testing.T, errMsg string) (listener *vkcli.T
 	now := time.Now()
 	deadline := now.Add(timeout)
 	for time.Now().Before(deadline) {
-		_, err = http.Post("http://"+tl.Addr(), "text/html", strings.NewReader("test"))
+		_, err = http.Post("http://"+tl.Addr(), "text/html", strings.NewReader("vkcli_test"))
 		if err == nil {
 			break
 		}

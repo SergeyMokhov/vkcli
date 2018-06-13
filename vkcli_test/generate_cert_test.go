@@ -1,4 +1,4 @@
-package test
+package vkcli_test
 
 import "testing"
 

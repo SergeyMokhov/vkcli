@@ -39,6 +39,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"path/filepath"
 	"log"
 	"crypto/rand"
 	"crypto/elliptic"
@@ -46,17 +47,7 @@ import (
 	"crypto/x509/pkix"
 	"strings"
 	"net"
-	"path/filepath"
 )
-
-//var (
-//	host       = ""                   //Comma-separated hostnames and IPs to generate a certificate for
-//	validFrom  = ""                   //Creation date formatted as Jan 1 15:04:05 2011
-//	validFor   = 365 * 24 * time.Hour //Duration that certificate is valid for
-//	isCA       = true                 //whether this cert should be its own Certificate Authority
-//	rsaBits    = 2048                 //Size of RSA key to generate. Ignored if --ecdsa-curve is set
-//	ecdsaCurve = ""                   //ECDSA curve to use to generate a key. Valid values are P224, P256 (recommended), P384, P521
-//)
 
 func publicKey(priv interface{}) interface{} {
 	switch k := priv.(type) {
@@ -86,21 +77,27 @@ func pemBlockForKey(priv interface{}) *pem.Block {
 	}
 }
 
-func Generate(host *string, validFrom *string, validFor *time.Duration, isCA *bool, rsaBits *int,
-	ecdsaCurve *string, path *string) {
-	pathToCert := filepath.Join(*path, "cert.pem")
-	pathToKey := filepath.Join(*path, "key.pem")
+//	host - Comma-separated hostnames and IPs to generate a certificate for
+//	validFrom - Creation date formatted as Jan 1 15:04:05 2011
+//	validFor - Duration that certificate is valid for
+//	isCA - whether this cert should be its own Certificate Authority
+//	rsaBits - Size of RSA key to generate. Ignored if --ecdsa-curve is set
+//	ecdsaCurve - ECDSA curve to use to generate a key. Valid values are P224, P256 (recommended), P384, P521
+func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bool,
+	rsaBits int, ecdsaCurve string, path string) {
+	pathToCert := filepath.Join(path, "cert.pem")
+	pathToKey := filepath.Join(path, "key.pem")
 
-	if len(*host) == 0 {
+	if len(host) == 0 {
 		log.Fatalf("Missing required --host parameter")
 	}
 
 	var priv interface{}
 	var err error
 
-	switch *ecdsaCurve {
+	switch ecdsaCurve {
 	case "":
-		priv, err = rsa.GenerateKey(rand.Reader, *rsaBits)
+		priv, err = rsa.GenerateKey(rand.Reader, rsaBits)
 	case "P224":
 		priv, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
 	case "P256":
@@ -110,7 +107,7 @@ func Generate(host *string, validFrom *string, validFor *time.Duration, isCA *bo
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", *ecdsaCurve)
+		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", ecdsaCurve)
 		os.Exit(1)
 	}
 
@@ -120,17 +117,17 @@ func Generate(host *string, validFrom *string, validFor *time.Duration, isCA *bo
 
 	var notBefore time.Time
 
-	if len(*validFrom) == 0 {
+	if len(validFrom) == 0 {
 		notBefore = time.Now()
 	} else {
-		notBefore, err = time.Parse("Jan 2 15:04:05 2006", *validFrom)
+		notBefore, err = time.Parse("Jan 2 15:04:05 2006", validFrom)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to parse creation date: %s\n", err)
 			os.Exit(1)
 		}
 	}
 
-	notAfter := notBefore.Add(*validFor)
+	notAfter := notBefore.Add(validFor)
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
@@ -150,7 +147,7 @@ func Generate(host *string, validFrom *string, validFor *time.Duration, isCA *bo
 		BasicConstraintsValid: true,
 	}
 
-	hosts := strings.Split(*host, ",")
+	hosts := strings.Split(host, ",")
 
 	for _, h := range hosts {
 		if ip := net.ParseIP(h); ip != nil {
@@ -160,7 +157,7 @@ func Generate(host *string, validFrom *string, validFor *time.Duration, isCA *bo
 		}
 	}
 
-	if *isCA {
+	if isCA {
 		template.IsCA = true
 		template.KeyUsage |= x509.KeyUsageCertSign
 	}

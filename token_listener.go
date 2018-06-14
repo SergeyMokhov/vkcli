@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var data string = "./data"
+var data = "./data"
 
 type TokenListener struct {
 	token  *oauth2.Token
@@ -70,5 +70,4 @@ func (tl *TokenListener) Addr() (addr string) {
 func (*TokenListener) Token() (token *oauth2.Token, err error) {
 	return nil, nil
 	//TODO return real token
-	//TODO put this thing on github
 }

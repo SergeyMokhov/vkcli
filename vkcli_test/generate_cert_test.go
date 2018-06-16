@@ -11,7 +11,7 @@ import (
 var dataFolder = "./data"
 
 func TestGenerate(t *testing.T) {
-	host := "localhost, 127.0.0.1"
+	host := "localhost,127.0.0.1"
 	validFrom := ""
 	validFor := 365 * 24 * time.Hour
 	isCA := true

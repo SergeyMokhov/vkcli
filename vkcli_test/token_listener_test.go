@@ -6,36 +6,44 @@ import (
 	"net/http"
 	"strings"
 	"github.com/SergeyMokhov/vkcli"
+	"crypto/tls"
 )
 
 func TestNewTokenListener(t *testing.T) {
-	startAndVerifyTokenListener(t, "First and the only.")
+	startTokenListenerAndWaitStarted(t, "First and the only.")
 }
 
 func TestShouldFindFreePort(t *testing.T) {
-	startAndVerifyTokenListener(t, "First")
-	startAndVerifyTokenListener(t, "Second")
-	startAndVerifyTokenListener(t, "Third")
+	startTokenListenerAndWaitStarted(t, "First")
+	startTokenListenerAndWaitStarted(t, "Second")
+	startTokenListenerAndWaitStarted(t, "Third")
 }
 
 func TestShouldStopListener(t *testing.T) {
-	tl := startAndVerifyTokenListener(t, "Listener to stop")
+	tl := startTokenListenerAndWaitStarted(t, "Listener to stop")
 	err := tl.Stop()
 	if err != nil {
 		t.Errorf("Failed to stop listener. %v", err)
 	}
-	err2 := post(tl.Addr())
-	if err2 == nil {
+	_, postErr := unsafeHttpsPost(tl.Addr())
+	if postErr == nil {
 		t.Errorf("Successfully posted to listener afer calling Stop()")
 	}
 }
 
-func post(addr string) (error) {
-	_, err := http.Post("http://"+addr, "text/html", strings.NewReader("vkcli_test"))
-	return err
+func unsafeHttpsPost(addr string) (resp *http.Response, err error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	client := http.Client{Transport: tr}
+
+	resp, err = client.Post("https://"+addr, "text/html", strings.NewReader("Hello?"))
+	return
 }
 
-func startAndVerifyTokenListener(t *testing.T, errMsg string) (listener *vkcli.TokenListener) {
+func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *vkcli.TokenListener) {
 	timeout := 10 * time.Millisecond
 
 	tl, err := vkcli.NewTokenListener()
@@ -46,7 +54,7 @@ func startAndVerifyTokenListener(t *testing.T, errMsg string) (listener *vkcli.T
 	now := time.Now()
 	deadline := now.Add(timeout)
 	for time.Now().Before(deadline) {
-		_, err = http.Post("http://"+tl.Addr(), "text/html", strings.NewReader("vkcli_test"))
+		_, err := unsafeHttpsPost(tl.Addr())
 		if err == nil {
 			break
 		}

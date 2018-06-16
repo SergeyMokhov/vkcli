@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"strconv"
 	"os"
+	"time"
+	"path/filepath"
 )
 
-var data = "./data"
+var dataFolder = "./data"
 
 type TokenListener struct {
 	token  *oauth2.Token
@@ -25,6 +27,19 @@ func NewTokenListener() (*TokenListener, error) {
 }
 
 func startServer() (srv *http.Server) {
+	host := "localhost,127.0.0.1"
+	validFrom := ""
+	validFor := 365 * 24 * time.Hour
+	isCA := true
+	rsaBits := 2048
+	ecdsaCurve := ""
+	cert := filepath.Join(dataFolder, "cert.pem")
+	key := filepath.Join(dataFolder, "key.pem")
+
+	if !certificateExist() {
+		GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+	}
+
 	srv = &http.Server{}
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -34,7 +49,7 @@ func startServer() (srv *http.Server) {
 	srv.Addr = "localhost:" + strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
 
 	go func() {
-		if err := srv.Serve(listener); err != nil {
+		if err := srv.ServeTLS(listener, cert, key); err != nil {
 			log.Printf("%v", err)
 		}
 	}()
@@ -53,8 +68,8 @@ func certificateExist() (bool) {
 	var cert bool
 	var key bool
 
-	cert = fileExists(data + "/cert.pem")
-	key = fileExists(data + "/key.pem")
+	cert = fileExists(filepath.Join(dataFolder, "cert.pem"))
+	key = fileExists(filepath.Join(dataFolder, "key.pem"))
 
 	return cert && key
 }

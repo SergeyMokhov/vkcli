@@ -36,7 +36,7 @@ func startServer() (srv *http.Server) {
 	cert := filepath.Join(dataFolder, "cert.pem")
 	key := filepath.Join(dataFolder, "key.pem")
 
-	if !certificateExist() {
+	if !certificateExists() {
 		GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
 	}
 
@@ -64,7 +64,7 @@ func fileExists(path string) (bool) {
 	return false
 }
 
-func certificateExist() (bool) {
+func certificateExists() (bool) {
 	var cert bool
 	var key bool
 

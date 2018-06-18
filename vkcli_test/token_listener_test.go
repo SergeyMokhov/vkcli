@@ -1,12 +1,12 @@
 package vkcli_test
 
 import (
-	"testing"
-	"time"
+	"crypto/tls"
+	"github.com/SergeyMokhov/vkcli"
 	"net/http"
 	"strings"
-	"github.com/SergeyMokhov/vkcli"
-	"crypto/tls"
+	"testing"
+	"time"
 )
 
 func TestNewTokenListener(t *testing.T) {
@@ -37,7 +37,10 @@ func unsafeHttpsPost(addr string) (resp *http.Response, err error) {
 			InsecureSkipVerify: true,
 		},
 	}
-	client := http.Client{Transport: tr}
+	client := http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(100 * time.Millisecond),
+	}
 
 	resp, err = client.Post("https://"+addr, "text/html", strings.NewReader("Hello?"))
 	return

@@ -88,6 +88,10 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	pathToCert := filepath.Join(path, "cert.pem")
 	pathToKey := filepath.Join(path, "key.pem")
 
+	if !FileExists(path) {
+		os.MkdirAll(path, os.ModePerm)
+	}
+
 	if len(host) == 0 {
 		log.Fatalf("Missing required --host parameter")
 	}

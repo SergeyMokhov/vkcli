@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	"os"
 	"time"
 	"path/filepath"
 )
@@ -57,19 +56,12 @@ func startServer() (srv *http.Server) {
 	return srv
 }
 
-func fileExists(path string) (bool) {
-	if _, err := os.Stat(path); err == nil {
-		return true
-	}
-	return false
-}
-
 func certificateExists() (bool) {
 	var cert bool
 	var key bool
 
-	cert = fileExists(filepath.Join(dataFolder, "cert.pem"))
-	key = fileExists(filepath.Join(dataFolder, "key.pem"))
+	cert = FileExists(filepath.Join(dataFolder, "cert.pem"))
+	key = FileExists(filepath.Join(dataFolder, "key.pem"))
 
 	return cert && key
 }

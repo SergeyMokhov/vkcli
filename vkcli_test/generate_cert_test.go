@@ -20,16 +20,16 @@ func TestGenerate(t *testing.T) {
 	expectedCertPath := filepath.Join(dataFolder, "cert.pem")
 	expectedKeyPath := filepath.Join(dataFolder, "key.pem")
 
-	cleanup()
+	defer cleanup()
 
 	vkcli.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
 
-	certExist := fileExists(expectedCertPath)
+	certExist := vkcli.FileExists(expectedCertPath)
 	if !certExist {
 		t.Errorf("Certificate was not created in %s", expectedCertPath)
 	}
 
-	keyExist := fileExists(expectedKeyPath)
+	keyExist := vkcli.FileExists(expectedKeyPath)
 	if !keyExist {
 		t.Errorf("Key was not created in %s", expectedKeyPath)
 	}
@@ -37,12 +37,4 @@ func TestGenerate(t *testing.T) {
 
 func cleanup() {
 	os.RemoveAll(dataFolder)
-	os.MkdirAll(dataFolder, os.ModePerm)
-}
-
-func fileExists(path string) (bool) {
-	if _, err := os.Stat(path); err == nil {
-		return true
-	}
-	return false
 }

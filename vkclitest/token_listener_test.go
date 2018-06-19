@@ -1,4 +1,4 @@
-package vkcli_test
+package vkclitest
 
 import (
 	"crypto/tls"

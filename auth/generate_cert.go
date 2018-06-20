@@ -186,7 +186,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	keyOut, err := os.OpenFile(pathToKey, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 
 	if err != nil {
-		log.Printf("Failed to open %s for writing: $s", pathToKey, err)
+		log.Printf("Failed to open %s for writing: %s", pathToKey, err)
 		return
 	}
 

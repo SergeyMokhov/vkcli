@@ -1,4 +1,4 @@
-package auth
+package test
 
 import (
 	"github.com/SergeyMokhov/vkcli/auth"

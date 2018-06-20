@@ -1,12 +1,12 @@
-package vkcli
+package auth
 
 import (
+	"errors"
+	"fmt"
 	"golang.org/x/oauth2"
 	"net/url"
 	"strconv"
 	"time"
-	"errors"
-	"fmt"
 )
 
 func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {

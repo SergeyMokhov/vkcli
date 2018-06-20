@@ -29,24 +29,25 @@
 // Generate a self-signed X.509 certificate for a TLS server. Outputs to
 // 'cert.pem' and 'key.pem' and will overwrite existing files.
 
-package vkcli
+package auth
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
-	"os"
-	"time"
-	"path/filepath"
+	"github.com/SergeyMokhov/vkcli/tools"
 	"log"
-	"crypto/rand"
-	"crypto/elliptic"
 	"math/big"
-	"crypto/x509/pkix"
-	"strings"
 	"net"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 func publicKey(priv interface{}) interface{} {
@@ -67,6 +68,7 @@ func pemBlockForKey(priv interface{}) *pem.Block {
 	case *ecdsa.PrivateKey:
 		b, err := x509.MarshalECPrivateKey(k)
 		if err != nil {
+			//TODO remove logs, replace with returning errors
 			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
 			os.Exit(2)
 		}
@@ -88,7 +90,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	pathToCert := filepath.Join(path, "cert.pem")
 	pathToKey := filepath.Join(path, "key.pem")
 
-	if !FileExists(path) {
+	if !tools.FileExists(path) {
 		os.MkdirAll(path, os.ModePerm)
 	}
 

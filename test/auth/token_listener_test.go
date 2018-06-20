@@ -1,8 +1,8 @@
-package vkclitest
+package auth
 
 import (
 	"crypto/tls"
-	"github.com/SergeyMokhov/vkcli"
+	"github.com/SergeyMokhov/vkcli/auth"
 	"net/http"
 	"strings"
 	"testing"
@@ -46,10 +46,10 @@ func unsafeHttpsPost(addr string) (resp *http.Response, err error) {
 	return
 }
 
-func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *vkcli.TokenListener) {
+func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *auth.TokenListener) {
 	timeout := 10 * time.Millisecond
 
-	tl, err := vkcli.NewTokenListener()
+	tl, err := auth.NewTokenListener()
 	if err != nil {
 		t.Fatalf("Failed to start Token Listener. %v %v", errMsg, err)
 	}

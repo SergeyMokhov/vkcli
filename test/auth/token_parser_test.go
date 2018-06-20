@@ -1,9 +1,9 @@
-package vkclitest
+package auth
 
 import (
-	"testing"
-	"github.com/SergeyMokhov/vkcli"
+	"github.com/SergeyMokhov/vkcli/auth"
 	"strconv"
+	"testing"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func TestParseString(t *testing.T) {
 	url := "https://oauth.vk.com/blank.html#access_token=" + expectedAccessToken + "&expires_in" +
 		"=" + strconv.Itoa(expectedExpires) + "&user_id=8492"
 
-	token, err := vkcli.ParseUrlString(url)
+	token, err := auth.ParseUrlString(url)
 
 	if err != nil {
 		t.Fatalf("Got an error '%s', want nil", err)
@@ -33,7 +33,7 @@ func TestParseStringErrorUrl(t *testing.T) {
 	url := "http://REDIRECT_URI?error=access_denied&error_description=The+user+or+authorization+" +
 		"server+denied+the+request. "
 
-	_, err := vkcli.ParseUrlString(url)
+	_, err := auth.ParseUrlString(url)
 
 	if err == nil {
 		t.Fatal("Got nil, want an error")
@@ -44,7 +44,7 @@ func TestParseStringNoExpiry(t *testing.T) {
 	expectedAccessToken := "533bacf01e11f55b536a565b57531ad114461ae8736d6506a3"
 	url := "https://oauth.vk.com/blank.html#access_token=" + expectedAccessToken + "&user_id=8492"
 
-	_, err := vkcli.ParseUrlString(url)
+	_, err := auth.ParseUrlString(url)
 
 	if err == nil {
 		t.Fatal("Got nil, want an error")
@@ -57,7 +57,7 @@ func TestParseStringNonIntExpiry(t *testing.T) {
 	url := "https://oauth.vk.com/blank.html#access_token=" + expectedAccessToken + "&expires_in" +
 		"=" + expectedExpires + "&user_id=8492"
 
-	_, err := vkcli.ParseUrlString(url)
+	_, err := auth.ParseUrlString(url)
 
 	if err == nil {
 		t.Fatal("Got nil, want an error")

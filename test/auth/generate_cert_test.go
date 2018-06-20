@@ -1,11 +1,12 @@
-package vkclitest
+package auth
 
 import (
-	"testing"
-	"time"
-	"github.com/SergeyMokhov/vkcli"
+	"github.com/SergeyMokhov/vkcli/auth"
+	"github.com/SergeyMokhov/vkcli/tools"
 	"os"
 	"path/filepath"
+	"testing"
+	"time"
 )
 
 var dataFolder = "./data"
@@ -22,14 +23,14 @@ func TestGenerate(t *testing.T) {
 
 	defer cleanup()
 
-	vkcli.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+	auth.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
 
-	certExist := vkcli.FileExists(expectedCertPath)
+	certExist := tools.FileExists(expectedCertPath)
 	if !certExist {
 		t.Errorf("Certificate was not created in %s", expectedCertPath)
 	}
 
-	keyExist := vkcli.FileExists(expectedKeyPath)
+	keyExist := tools.FileExists(expectedKeyPath)
 	if !keyExist {
 		t.Errorf("Key was not created in %s", expectedKeyPath)
 	}

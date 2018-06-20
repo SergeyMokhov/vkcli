@@ -1,13 +1,14 @@
-package vkcli
+package auth
 
 import (
+	"github.com/SergeyMokhov/vkcli/tools"
 	"golang.org/x/oauth2"
 	"log"
 	"net"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
-	"path/filepath"
 )
 
 var dataFolder = "./data"
@@ -56,17 +57,17 @@ func startServer() (srv *http.Server) {
 	return srv
 }
 
-func certificateExists() (bool) {
+func certificateExists() bool {
 	var cert bool
 	var key bool
 
-	cert = FileExists(filepath.Join(dataFolder, "cert.pem"))
-	key = FileExists(filepath.Join(dataFolder, "key.pem"))
+	cert = tools.FileExists(filepath.Join(dataFolder, "cert.pem"))
+	key = tools.FileExists(filepath.Join(dataFolder, "key.pem"))
 
 	return cert && key
 }
 
-func (tl *TokenListener) Stop() (error) {
+func (tl *TokenListener) Stop() error {
 	return tl.server.Close()
 }
 

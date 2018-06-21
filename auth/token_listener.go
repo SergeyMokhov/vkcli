@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+	"errors"
+	"fmt"
 )
 
 var dataFolder = "./data"
@@ -21,12 +23,15 @@ type TokenListener struct {
 func NewTokenListener() (*TokenListener, error) {
 	tl := TokenListener{}
 	tl.token = nil
-	srv := startServer()
+	srv, err := startServer()
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Unable to start token listener: %s", err))
+	}
 	tl.server = srv
 	return &tl, nil
 }
 
-func startServer() (srv *http.Server) {
+func startServer() (srv *http.Server, err error) {
 	host := "localhost,127.0.0.1"
 	validFrom := ""
 	validFor := 365 * 24 * time.Hour
@@ -37,24 +42,27 @@ func startServer() (srv *http.Server) {
 	key := filepath.Join(dataFolder, "key.pem")
 
 	if !certificateExists() {
-		GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+		err := GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Cannot generate Certificate: %s", err))
+		}
 	}
 
 	srv = &http.Server{}
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		log.Fatalf("Failed to start listener %v", err)
+		return nil, errors.New(fmt.Sprintf("Error listening port %v", err))
 	}
 
 	srv.Addr = "localhost:" + strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
 
 	go func() {
-		if err := srv.ServeTLS(listener, cert, key); err != nil {
-			log.Printf("%v", err)
+		if err := srv.ServeTLS(listener, cert, key); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Error staring or stopping server: %v", err)
 		}
 	}()
 
-	return srv
+	return srv, nil
 }
 
 func certificateExists() bool {

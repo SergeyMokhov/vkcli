@@ -41,13 +41,13 @@ import (
 	"encoding/pem"
 	"fmt"
 	"github.com/SergeyMokhov/vkcli/tools"
-	"log"
 	"math/big"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+	"errors"
 )
 
 func publicKey(priv interface{}) interface{} {
@@ -61,21 +61,18 @@ func publicKey(priv interface{}) interface{} {
 	}
 }
 
-func pemBlockForKey(priv interface{}) *pem.Block {
+func pemBlockForKey(priv interface{}) (p *pem.Block, err error) {
 	switch k := priv.(type) {
 	case *rsa.PrivateKey:
-		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
+		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}, nil
 	case *ecdsa.PrivateKey:
-		b, err := x509.MarshalECPrivateKey(k)
-		if err != nil {
-			//TODO remove logs, replace with returning errors
-			fmt.Fprintf(os.Stderr, "Unable to marshal ECDSA private key: %v", err)
-			os.Exit(2)
+		b, errM := x509.MarshalECPrivateKey(k)
+		if errM != nil {
+			return nil, errors.New(fmt.Sprintf("Unable to marshal ECDSA private key: %v", errM))
 		}
-
-		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
+		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}, nil
 	default:
-		return nil
+		return nil, nil
 	}
 }
 
@@ -86,7 +83,7 @@ func pemBlockForKey(priv interface{}) *pem.Block {
 //	rsaBits - Size of RSA key to generate. Ignored if --ecdsa-curve is set
 //	ecdsaCurve - ECDSA curve to use to generate a key. Valid values are P224, P256 (recommended), P384, P521
 func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bool,
-	rsaBits int, ecdsaCurve string, path string) {
+	rsaBits int, ecdsaCurve string, path string) (err error) {
 	pathToCert := filepath.Join(path, "cert.pem")
 	pathToKey := filepath.Join(path, "key.pem")
 
@@ -95,11 +92,10 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	}
 
 	if len(host) == 0 {
-		log.Fatalf("Missing required --host parameter")
+		return errors.New("Missing required --host parameter")
 	}
 
 	var priv interface{}
-	var err error
 
 	switch ecdsaCurve {
 	case "":
@@ -113,12 +109,11 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", ecdsaCurve)
-		os.Exit(1)
+		err = errors.New(fmt.Sprintf("Unrecognized elliptic curve: %q", ecdsaCurve))
 	}
 
 	if err != nil {
-		log.Fatalf("failed to generate private key: %s", err)
+		return errors.New(fmt.Sprintf("Failed to generate private key: %s", err))
 	}
 
 	var notBefore time.Time
@@ -128,8 +123,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	} else {
 		notBefore, err = time.Parse("Jan 2 15:04:05 2006", validFrom)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to parse creation date: %s\n", err)
-			os.Exit(1)
+			return errors.New(fmt.Sprintf("Failed to parse creation date: %s", err))
 		}
 	}
 
@@ -138,7 +132,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
 	if err != nil {
-		log.Fatalf("failed to generate serial number: %s", err)
+		return errors.New(fmt.Sprintf("Failed to generate serial number: %s", err))
 	}
 
 	template := x509.Certificate{
@@ -171,26 +165,29 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 
 	if err != nil {
-		log.Fatalf("Failed to create certificate: %s", err)
+		return errors.New(fmt.Sprintf("Failed to create certificate: %s", err))
 	}
 
 	certOut, err := os.Create(pathToCert)
 
 	if err != nil {
-		log.Fatalf("Failed to open %s for writing: %s", pathToCert, err)
+		return errors.New(fmt.Sprintf("Failed to open %s for writing: %s", pathToCert, err))
 	}
 
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
-	log.Printf("Written %s", pathToCert)
 	keyOut, err := os.OpenFile(pathToKey, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 
 	if err != nil {
-		log.Printf("Failed to open %s for writing: %s", pathToKey, err)
-		return
+		return errors.New(fmt.Sprintf("Failed to open %s for writing: %s", pathToKey, err))
 	}
 
-	pem.Encode(keyOut, pemBlockForKey(priv))
+	pemKey, err := pemBlockForKey(priv)
+	if err != nil {
+		return err
+	}
+
+	pem.Encode(keyOut, pemKey)
 	keyOut.Close()
-	log.Printf("Written %s", pathToKey)
+	return nil
 }

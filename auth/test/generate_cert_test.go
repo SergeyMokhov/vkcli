@@ -23,8 +23,10 @@ func TestGenerate(t *testing.T) {
 
 	defer cleanup()
 
-	auth.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
-
+	err := auth.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+	if err != nil {
+		t.Fatalf("Certificate generation returned error %s", err)
+	}
 	certExist := tools.FileExists(expectedCertPath)
 	if !certExist {
 		t.Errorf("Certificate was not created in %s", expectedCertPath)

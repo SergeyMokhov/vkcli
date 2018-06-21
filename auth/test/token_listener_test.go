@@ -62,6 +62,7 @@ func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *au
 			break
 		}
 	}
+
 	if err != nil {
 		t.Fatalf("%v. Token Listener with addres: %v, did not start in %v. Error: %v", errMsg,
 			tl.Addr(), timeout, err)

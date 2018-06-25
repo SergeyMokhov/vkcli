@@ -7,8 +7,14 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"os"
 )
 
+func TestMain(m *testing.M){
+	result := m.Run()
+	cleanup()
+	os.Exit(result)
+}
 func TestNewTokenListener(t *testing.T) {
 	startTokenListenerAndWaitStarted(t, "First and the only.")
 }

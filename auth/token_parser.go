@@ -16,15 +16,8 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 		return nil, err
 	}
 
-	values := pastedUrl.Query()
-	if errDesc := values.Get("error_description"); errDesc != "" {
-		err = errors.New(fmt.Sprintf("Cannot parse token from the URL: %s", errDesc))
-		return nil, err
-	}
-
-	if errParam := values.Get("error"); errParam != "" {
-		err = errors.New(fmt.Sprintf("Cannot parse token from the URL: %s", errParam))
-		return nil, err
+	if urlIsErr, errDesc := isErr(pastedUrl); urlIsErr {
+		return nil, errors.New(fmt.Sprintf("Cannot parse token from the URL: %s", errDesc))
 	}
 
 	urlWithToken, errUrl := pastedUrl.Parse(pastedUrl.Scheme + "://" + pastedUrl.Host +
@@ -34,7 +27,7 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 		return nil, err
 	}
 
-	values = urlWithToken.Query()
+	values := urlWithToken.Query()
 	accessToken := values.Get("access_token")
 	if accessToken == "" {
 		err = errors.New("Url does not contain an access token.")
@@ -59,4 +52,18 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 	}
 
 	return token, err
+}
+
+func isErr(urlToTest *url.URL) (isErr bool, err string) {
+	values := urlToTest.Query()
+	if errDesc := values.Get("error_description"); errDesc != "" {
+		isErr = true
+		err = errDesc
+	}
+
+	if errParam := values.Get("error"); errParam != "" {
+		isErr = true
+		err = err + ". " + errParam
+	}
+	return
 }

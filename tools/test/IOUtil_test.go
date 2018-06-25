@@ -2,7 +2,7 @@ package test
 
 import (
 	"testing"
-	"github.com/SergeyMokhov/vkcli/tools"
+	"gitlab.com/SergeyMokhov/vkcli/tools"
 	"path/filepath"
 	"github.com/spf13/viper"
 	"io/ioutil"

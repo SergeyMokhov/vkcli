@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/SergeyMokhov/vkcli/auth"
-	"github.com/SergeyMokhov/vkcli/tools"
+	"gitlab.com/SergeyMokhov/vkcli/auth"
+	"gitlab.com/SergeyMokhov/vkcli/tools"
 	"os"
 	"path/filepath"
 	"testing"

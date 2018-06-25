@@ -24,7 +24,6 @@ format:
     stage: test
     script:
       - go fmt $(go list ./... | grep -v /vendor/)
-      - ls -a /usr/local/go/src/github.com/SergeyMokhov/vkcli
       - go vet $(go list ./... | grep -v /vendor/)
       - go test -race $(go list ./... | grep -v /vendor/)
 

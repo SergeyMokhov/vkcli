@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/SergeyMokhov/vkcli/auth"
+	"gitlab.com/SergeyMokhov/vkcli/auth"
 	"strconv"
 	"testing"
 	"time"

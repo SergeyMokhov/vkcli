@@ -2,7 +2,7 @@ package test
 
 import (
 	"crypto/tls"
-	"github.com/SergeyMokhov/vkcli/auth"
+	"gitlab.com/SergeyMokhov/vkcli/auth"
 	"net/http"
 	"strings"
 	"testing"

@@ -17,8 +17,15 @@ before_script:
   - cd $GOPATH/src/$REPO_NAME
 
 stages:
+    - resoveDep
     - test
-    - build
+#    - build
+
+resolve:
+    stage: resoveDep
+    script:
+      - go get github.com/spf13/viper
+      - go get golang.org/x/oauth2
 
 format:
     stage: test
@@ -27,10 +34,10 @@ format:
       - go vet $(go list ./... | grep -v /vendor/)
       - go test -race $(go list ./... | grep -v /vendor/)
 
-compile:
-    stage: build
-    script:
-      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/mybinary
-    artifacts:
-      paths:
-        - mybinary
+#compile:
+#    stage: build
+#    script:
+#      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/mybinary
+#    artifacts:
+#      paths:
+#        - mybinary

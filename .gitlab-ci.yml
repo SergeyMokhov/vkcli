@@ -15,17 +15,12 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
+  - go get github.com/spf13/viper
+  - go get golang.org/x/oauth2
 
 stages:
-    - resoveDep
     - test
 #    - build
-
-resolve:
-    stage: resoveDep
-    script:
-      - go get github.com/spf13/viper
-      - go get golang.org/x/oauth2
 
 format:
     stage: test

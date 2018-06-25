@@ -18,7 +18,7 @@ func ReadConfig(path string) error {
 	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unable to read config file: ", err))
+		return errors.New(fmt.Sprintf("Unable to read config file: %v", err))
 	}
 	return nil
 }

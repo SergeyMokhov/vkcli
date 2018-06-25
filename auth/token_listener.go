@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"gitlab.com/SergeyMokhov/vkcli/tools"
+	"gitlab.com/g00g/vkcli/tools"
 	"golang.org/x/oauth2"
 	"log"
 	"net"

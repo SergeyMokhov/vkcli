@@ -40,7 +40,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
-	"gitlab.com/SergeyMokhov/vkcli/tools"
+	"gitlab.com/g00g/vkcli/tools"
 	"math/big"
 	"net"
 	"os"

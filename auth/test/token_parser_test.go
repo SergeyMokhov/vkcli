@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/vk"
 )
 
 func TestParseString(t *testing.T) {
@@ -61,5 +63,45 @@ func TestParseStringNonIntExpiry(t *testing.T) {
 
 	if err == nil {
 		t.Fatal("Got nil, want an error")
+	}
+}
+
+func TestAuthCodeURL(t *testing.T) {
+	want := "https://oauth.vk.com/authorize?client_id=999&display=page&redirect_uri=https%3A%2F%2F" +
+		"oauth.vk.com%2Fblank.html&response_type=token&scope=1026&state=randomState&v=5.80"
+	c := oauth2.Config{
+		ClientID:    "999",
+		Endpoint:    vk.Endpoint,
+		RedirectURL: "https://oauth.vk.com/blank.html",
+		Scopes:      []string{"1026"},
+	}
+	conf := auth.Config{c}
+	opts := map[string]string{
+		"display": "page",
+		"v":       "5.80",
+	}
+
+	if got := conf.AuthCodeURL("randomState", opts); got != want {
+		t.Fatalf("Unexpected URL.\nGot : '%s'\nWant: '%s'", got, want)
+	}
+}
+
+func TestAuthCodeURLNoState(t *testing.T) {
+	want := "https://oauth.vk.com/authorize?client_id=999&display=page&redirect_uri=https%3A%2F%2F" +
+		"oauth.vk.com%2Fblank.html&response_type=token&scope=1026&state=&v=5.80"
+	c := oauth2.Config{
+		ClientID:    "999",
+		Endpoint:    vk.Endpoint,
+		RedirectURL: "https://oauth.vk.com/blank.html",
+		Scopes:      []string{"1026"},
+	}
+	conf := auth.Config{c}
+	opts := map[string]string{
+		"display": "page",
+		"v":       "5.80",
+	}
+
+	if got := conf.AuthCodeURL("", opts); got == want {
+		t.Fatalf("Unexpected URL. State is not generated automatically.\nUrl:%s", got)
 	}
 }

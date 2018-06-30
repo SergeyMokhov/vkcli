@@ -7,6 +7,9 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+	"bytes"
+	"strings"
+	"gitlab.com/g00g/vkcli/tools"
 )
 
 func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
@@ -52,6 +55,40 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 	}
 
 	return token, err
+}
+
+func (c *Config) AuthCodeURL(state string, opts map[string]string) string {
+	var buf bytes.Buffer
+	buf.WriteString(c.Endpoint.AuthURL)
+	v := url.Values{
+		"response_type": {"token"},
+		"client_id":     {c.ClientID},
+	}
+	if c.RedirectURL != "" {
+		v.Set("redirect_uri", c.RedirectURL)
+	}
+	if len(c.Scopes) > 0 {
+		v.Set("scope", strings.Join(c.Scopes, " "))
+	}
+	if state != "" {
+		v.Set("state", state)
+	} else {
+		v.Set("state", tools.PseudoUuid())
+	}
+	for key, val := range opts {
+		v.Set(key, val)
+	}
+	if strings.Contains(c.Endpoint.AuthURL, "?") {
+		buf.WriteByte('&')
+	} else {
+		buf.WriteByte('?')
+	}
+	buf.WriteString(v.Encode())
+	return buf.String()
+}
+
+type Config struct {
+	oauth2.Config
 }
 
 func isErr(urlToTest *url.URL) (isErr bool, err string) {

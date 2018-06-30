@@ -75,7 +75,7 @@ func TestAuthCodeURL(t *testing.T) {
 		RedirectURL: "https://oauth.vk.com/blank.html",
 		Scopes:      []string{"1026"},
 	}
-	conf := auth.Config{c}
+	conf := auth.Config{Config: c}
 	opts := map[string]string{
 		"display": "page",
 		"v":       "5.80",
@@ -95,7 +95,7 @@ func TestAuthCodeURLNoState(t *testing.T) {
 		RedirectURL: "https://oauth.vk.com/blank.html",
 		Scopes:      []string{"1026"},
 	}
-	conf := auth.Config{c}
+	conf := auth.Config{Config: c}
 	opts := map[string]string{
 		"display": "page",
 		"v":       "5.80",

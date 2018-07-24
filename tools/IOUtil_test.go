@@ -1,19 +1,19 @@
-package test
+package tools
 
 import (
 	"testing"
-	"gitlab.com/g00g/vkcli/tools"
-	"path/filepath"
+	//"gitlab.com/g00g/vkcli/tools"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 var dataFolder = "./data"
 
 func TestReadConfig(t *testing.T) {
 	conf := "config.yaml"
-	if !tools.FileExists(dataFolder) {
+	if !FileExists(dataFolder) {
 		os.MkdirAll(dataFolder, os.ModePerm)
 	}
 	defer os.RemoveAll(dataFolder)
@@ -24,7 +24,7 @@ func TestReadConfig(t *testing.T) {
 		t.Fatalf("Cannot write a config file: %v", err)
 	}
 
-	err = tools.ReadConfig(filepath.Join(dataFolder, conf))
+	err = ReadConfig(filepath.Join(dataFolder, conf))
 	if err != nil {
 		t.Fatal(err)
 	}

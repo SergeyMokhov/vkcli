@@ -1,15 +1,12 @@
-package test
+package auth
 
 import (
-	"gitlab.com/g00g/vkcli/auth"
 	"gitlab.com/g00g/vkcli/tools"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 )
-
-var dataFolder = "./data"
 
 func TestGenerate(t *testing.T) {
 	host := "localhost,127.0.0.1"
@@ -23,7 +20,7 @@ func TestGenerate(t *testing.T) {
 
 	defer cleanup()
 
-	err := auth.GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
+	err := GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
 	if err != nil {
 		t.Fatalf("Certificate generation returned error %s", err)
 	}

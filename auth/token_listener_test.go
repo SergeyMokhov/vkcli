@@ -1,16 +1,15 @@
-package test
+package auth
 
 import (
 	"crypto/tls"
-	"gitlab.com/g00g/vkcli/auth"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 	"time"
-	"os"
 )
 
-func TestMain(m *testing.M){
+func TestMain(m *testing.M) {
 	result := m.Run()
 	cleanup()
 	os.Exit(result)
@@ -52,10 +51,10 @@ func unsafeHttpsPost(addr string) (resp *http.Response, err error) {
 	return
 }
 
-func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *auth.TokenListener) {
+func startTokenListenerAndWaitStarted(t *testing.T, errMsg string) (listener *TokenListener) {
 	timeout := 10 * time.Millisecond
 
-	tl, err := auth.NewTokenListener()
+	tl, err := NewTokenListener()
 	if err != nil {
 		t.Fatalf("Failed to start Token Listener. %v %v", errMsg, err)
 	}

@@ -39,6 +39,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"gitlab.com/g00g/vkcli/tools"
 	"math/big"
@@ -47,7 +48,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"errors"
 )
 
 func publicKey(priv interface{}) interface{} {
@@ -68,7 +68,7 @@ func pemBlockForKey(priv interface{}) (p *pem.Block, err error) {
 	case *ecdsa.PrivateKey:
 		b, errM := x509.MarshalECPrivateKey(k)
 		if errM != nil {
-			return nil, errors.New(fmt.Sprintf("Unable to marshal ECDSA private key: %v", errM))
+			return nil, fmt.Errorf("Unable to marshal ECDSA private key: %v", errM)
 		}
 		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}, nil
 	default:
@@ -109,11 +109,11 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	case "P521":
 		priv, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	default:
-		err = errors.New(fmt.Sprintf("Unrecognized elliptic curve: %q", ecdsaCurve))
+		err = fmt.Errorf("Unrecognized elliptic curve: %q", ecdsaCurve)
 	}
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to generate private key: %s", err))
+		return fmt.Errorf("Failed to generate private key: %s", err)
 	}
 
 	var notBefore time.Time
@@ -123,7 +123,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	} else {
 		notBefore, err = time.Parse("Jan 2 15:04:05 2006", validFrom)
 		if err != nil {
-			return errors.New(fmt.Sprintf("Failed to parse creation date: %s", err))
+			return fmt.Errorf("Failed to parse creation date: %s", err)
 		}
 	}
 
@@ -132,7 +132,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to generate serial number: %s", err))
+		return fmt.Errorf("Failed to generate serial number: %s", err)
 	}
 
 	template := x509.Certificate{
@@ -165,13 +165,13 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, publicKey(priv), priv)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to create certificate: %s", err))
+		return fmt.Errorf("Failed to create certificate: %s", err)
 	}
 
 	certOut, err := os.Create(pathToCert)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to open %s for writing: %s", pathToCert, err))
+		return fmt.Errorf("Failed to open %s for writing: %s", pathToCert, err)
 	}
 
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
@@ -179,7 +179,7 @@ func GenerateCert(host string, validFrom string, validFor time.Duration, isCA bo
 	keyOut, err := os.OpenFile(pathToKey, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to open %s for writing: %s", pathToKey, err))
+		return fmt.Errorf("Failed to open %s for writing: %s", pathToKey, err)
 	}
 
 	pemKey, err := pemBlockForKey(priv)

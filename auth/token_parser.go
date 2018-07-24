@@ -1,32 +1,32 @@
 package auth
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"gitlab.com/g00g/vkcli/tools"
 	"golang.org/x/oauth2"
 	"net/url"
 	"strconv"
-	"time"
-	"bytes"
 	"strings"
-	"gitlab.com/g00g/vkcli/tools"
+	"time"
 )
 
 func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 	pastedUrl, errU := url.Parse(urlStr)
 	if errU != nil {
-		err = errors.New(fmt.Sprintf("Cannot parse URL from string '%s' %s", urlStr, errU))
+		err = fmt.Errorf("Cannot parse URL from string '%s' %s", urlStr, errU)
 		return nil, err
 	}
 
 	if urlIsErr, errDesc := isErr(pastedUrl); urlIsErr {
-		return nil, errors.New(fmt.Sprintf("Cannot parse token from the URL: %s", errDesc))
+		return nil, fmt.Errorf("Cannot parse token from the URL: %s", errDesc)
 	}
 
 	urlWithToken, errUrl := pastedUrl.Parse(pastedUrl.Scheme + "://" + pastedUrl.Host +
 		"?" + pastedUrl.Fragment)
 	if errUrl != nil {
-		err = errors.New(fmt.Sprintf("Cannot parse fragment to Url: %s", errUrl))
+		err = fmt.Errorf("Cannot parse fragment to Url: %s", errUrl)
 		return nil, err
 	}
 
@@ -45,7 +45,7 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 
 	expiresInSeconds, errConv := strconv.Atoi(expiresIn)
 	if errConv != nil {
-		err = errors.New(fmt.Sprintf("Cannot parse token expiration time. %s", errConv))
+		err = fmt.Errorf("Cannot parse token expiration time. %s", errConv)
 		return nil, err
 	}
 

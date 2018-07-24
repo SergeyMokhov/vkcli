@@ -1,11 +1,10 @@
 package tools
 
 import (
-	"os"
-	"github.com/spf13/viper"
-	"errors"
-	"fmt"
 	"crypto/rand"
+	"fmt"
+	"github.com/spf13/viper"
+	"os"
 )
 
 func FileExists(path string) bool {
@@ -19,7 +18,7 @@ func ReadConfig(path string) error {
 	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unable to read config file: %v", err))
+		return fmt.Errorf("Unable to read config file: %v", err)
 	}
 	return nil
 }

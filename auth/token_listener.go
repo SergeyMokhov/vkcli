@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"gitlab.com/g00g/vkcli/tools"
 	"golang.org/x/oauth2"
 	"log"
@@ -9,8 +10,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
-	"errors"
-	"fmt"
 )
 
 var dataFolder = "./data"
@@ -25,7 +24,7 @@ func NewTokenListener() (*TokenListener, error) {
 	tl.token = nil
 	srv, err := startServer()
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Unable to start token listener: %s", err))
+		return nil, fmt.Errorf("Unable to start token listener: %s", err)
 	}
 	tl.server = srv
 	return &tl, nil
@@ -44,14 +43,14 @@ func startServer() (srv *http.Server, err error) {
 	if !certificateExists() {
 		err := GenerateCert(host, validFrom, validFor, isCA, rsaBits, ecdsaCurve, dataFolder)
 		if err != nil {
-			return nil, errors.New(fmt.Sprintf("Cannot generate Certificate: %s", err))
+			return nil, fmt.Errorf("Cannot generate Certificate: %s", err)
 		}
 	}
 
 	srv = &http.Server{}
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Error listening port %v", err))
+		return nil, fmt.Errorf("Error listening port %v", err)
 	}
 
 	srv.Addr = "localhost:" + strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)

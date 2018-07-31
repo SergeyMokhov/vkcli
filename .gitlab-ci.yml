@@ -22,7 +22,7 @@ stages:
     - test
 #    - build
 
-format:
+fmt_vet_test:
     stage: test
     script:
       - go fmt $(go list ./... | grep -v /vendor/)

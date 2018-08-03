@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gitlab.com/g00g/vkcli/tools"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/vk"
 	"net/url"
 	"strconv"
 	"strings"
@@ -57,7 +58,7 @@ func ParseUrlString(urlStr string) (token *oauth2.Token, err error) {
 	return token, err
 }
 
-func (c *Config) AuthCodeURL(state string, opts map[string]string) string {
+func (c *config) AuthCodeURL(state string, opts map[string]string) string {
 	var buf bytes.Buffer
 	buf.WriteString(c.Endpoint.AuthURL)
 	v := url.Values{
@@ -87,8 +88,18 @@ func (c *Config) AuthCodeURL(state string, opts map[string]string) string {
 	return buf.String()
 }
 
-type Config struct {
+type config struct {
 	oauth2.Config
+}
+
+func NewConfig(clientId string) config {
+	c := oauth2.Config{
+		ClientID:    clientId,
+		Endpoint:    vk.Endpoint,
+		RedirectURL: "https://oauth.vk.com/blank.html",
+		Scopes:      []string{string(FullUserScope()), "nohttps"},
+	}
+	return config{Config: c}
 }
 
 func isErr(urlToTest *url.URL) (isErr bool, err string) {

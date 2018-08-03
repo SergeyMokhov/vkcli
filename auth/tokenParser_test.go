@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/vk"
 	"strconv"
@@ -74,7 +75,7 @@ func TestAuthCodeURL(t *testing.T) {
 		RedirectURL: "https://oauth.vk.com/blank.html",
 		Scopes:      []string{"1026"},
 	}
-	conf := Config{Config: c}
+	conf := config{Config: c}
 	opts := map[string]string{
 		"display": "page",
 		"v":       "5.80",
@@ -83,6 +84,13 @@ func TestAuthCodeURL(t *testing.T) {
 	if got := conf.AuthCodeURL("randomState", opts); got != want {
 		t.Fatalf("Unexpected URL.\nGot : '%s'\nWant: '%s'", got, want)
 	}
+}
+
+func TestNewConfig(t *testing.T) {
+	conf := NewConfig("999")
+
+	require.NotNil(t, conf)
+	require.Equal(t, "999", conf.ClientID)
 }
 
 func TestAuthCodeURLNoState(t *testing.T) {
@@ -94,7 +102,7 @@ func TestAuthCodeURLNoState(t *testing.T) {
 		RedirectURL: "https://oauth.vk.com/blank.html",
 		Scopes:      []string{"1026"},
 	}
-	conf := Config{Config: c}
+	conf := config{Config: c}
 	opts := map[string]string{
 		"display": "page",
 		"v":       "5.80",

@@ -17,6 +17,7 @@ before_script:
   - cd $GOPATH/src/$REPO_NAME
   - go get github.com/spf13/viper
   - go get golang.org/x/oauth2
+  - go get github.com/stretchr/testify/require
 
 stages:
     - test

@@ -97,7 +97,7 @@ func NewConfig(clientId string) config {
 		ClientID:    clientId,
 		Endpoint:    vk.Endpoint,
 		RedirectURL: "https://oauth.vk.com/blank.html",
-		Scopes:      []string{string(FullUserScope()), "nohttps"},
+		Scopes:      []string{strconv.FormatInt(int64(FullUserScope()), 10)},
 	}
 	return config{Config: c}
 }

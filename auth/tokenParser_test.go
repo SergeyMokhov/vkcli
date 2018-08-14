@@ -87,7 +87,7 @@ func TestAuthCodeURL(t *testing.T) {
 }
 
 func TestNewConfig(t *testing.T) {
-	conf := NewConfig("999")
+	conf := NewVkConfig("999")
 
 	require.NotNil(t, conf)
 	require.Equal(t, "999", conf.ClientID)

@@ -99,7 +99,7 @@ type config struct {
 	oauth2.Config
 }
 
-func NewConfig(clientId string) config {
+func NewVkConfig(clientId string) config {
 	c := oauth2.Config{
 		ClientID:    clientId,
 		Endpoint:    vk.Endpoint,

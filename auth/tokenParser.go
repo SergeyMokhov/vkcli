@@ -88,6 +88,13 @@ func (c *config) AuthCodeURL(state string, opts map[string]string) string {
 	return buf.String()
 }
 
+func (c *config) DefaultOptions() map[string]string {
+	return map[string]string{
+		"display": "page",
+		"v":       "5.80",
+	}
+}
+
 type config struct {
 	oauth2.Config
 }

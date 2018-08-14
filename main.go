@@ -17,17 +17,26 @@ func Start() {
 	dataFolder := "./data"
 	configFileName := "config.yaml"
 
-	initFromConfigFile(filepath.Join(dataFolder, configFileName))
-	//TODO use config.NewClient() to make requests to VK server
+	tokenString := initFromConfigFile(filepath.Join(dataFolder, configFileName))
+
+	token, err := auth.ParseUrlString(tokenString)
+	if err != nil {
+		log.Fatal(fmt.Errorf("Error parsing token: %v", err))
+	}
+
+	fmt.Printf("Your token is: %v", token)
+	// vk := api.New(token)
+	//TODO Implement a client for making requests to VK
+
 }
 
-func initFromConfigFile(pathToConfig string) (clientId string, tokenUrl string) {
+func initFromConfigFile(pathToConfig string) (tokenUrl string) {
 	err := tools.ReadConfig(pathToConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	clientId = viper.GetString("clientId")
+	clientId := viper.GetString("clientId")
 	if clientId == "" {
 		log.Fatal(fmt.Errorf("confing file %v has error: clientId not found", pathToConfig))
 	}
@@ -40,7 +49,7 @@ func initFromConfigFile(pathToConfig string) (clientId string, tokenUrl string) 
 }
 
 func requestToken(clientId string, pathToConfig string) {
-	config := auth.NewConfig(clientId)
+	config := auth.NewVkConfig(clientId)
 	log.Fatal(fmt.Errorf("tokenUrl: not found in confing file. Looks like this is the first time you run VK-Cli. "+
 		"Go to the following URL, log in, allow access, than copy url from the adress line. Add copied URL into %v config file"+
 		" as a new line.\nFor example tokenUrl: \"url goes here\"\n%v", pathToConfig, config.AuthCodeURL("", config.DefaultOptions())))

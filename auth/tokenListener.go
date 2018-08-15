@@ -8,7 +8,6 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -53,7 +52,7 @@ func startServer() (srv *http.Server, err error) {
 		return nil, fmt.Errorf("Error listening port %v", err)
 	}
 
-	srv.Addr = "localhost:" + strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
+	srv.Addr = fmt.Sprintf("localhost:%d", listener.Addr().(*net.TCPAddr).Port)
 
 	go func() {
 		if err := srv.ServeTLS(listener, cert, key); err != nil && err != http.ErrServerClosed {

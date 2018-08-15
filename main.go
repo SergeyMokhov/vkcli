@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"gitlab.com/g00g/vkcli/api"
 	"gitlab.com/g00g/vkcli/auth"
 	"gitlab.com/g00g/vkcli/tools"
 	"log"
@@ -21,13 +22,12 @@ func Start() {
 
 	token, err := auth.ParseUrlString(tokenString)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Error parsing token: %v", err))
+		log.Fatal(fmt.Errorf("error parsing token: %v", err))
 	}
 
-	fmt.Printf("Your token is: %v", token)
-	// vk := api.New(token)
+	vk := api.NewVk(token)
+	vk.DoIt()
 	//TODO Implement a client for making requests to VK
-
 }
 
 func initFromConfigFile(pathToConfig string) (tokenUrl string) {
@@ -50,7 +50,7 @@ func initFromConfigFile(pathToConfig string) (tokenUrl string) {
 
 func requestToken(clientId string, pathToConfig string) {
 	config := auth.NewVkConfig(clientId)
-	log.Fatal(fmt.Errorf("tokenUrl: not found in confing file. Looks like this is the first time you run VK-Cli. "+
+	log.Fatal(fmt.Errorf("tokenUrl: not found in confing file. Looks like this is the first time you run Vk-Cli. "+
 		"Go to the following URL, log in, allow access, than copy url from the adress line. Add copied URL into %v config file"+
 		" as a new line.\nFor example tokenUrl: \"url goes here\"\n%v", pathToConfig, config.AuthCodeURL("", config.DefaultOptions())))
 }

@@ -8,12 +8,14 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 type Vk struct {
-	client  *http.Client
-	token   *oauth2.Token
-	baseUrl *url.URL
+	paramLock sync.Mutex
+	client    *http.Client
+	token     *oauth2.Token
+	baseUrl   *url.URL
 	//TODO add auto scheduler that will queue and limit speed to 3 request per second (VK limitation)
 	// see https://vk.com/dev/api_requests
 }
@@ -31,30 +33,37 @@ func NewVk(token *oauth2.Token) *Vk {
 	}
 }
 
+func (vk *Vk) newRequest(method string) (urlToMethod *url.URL, defaultParams url.Values, err error) {
+	vk.paramLock.Lock()
+	defer vk.paramLock.Unlock()
+
+	urlToMethod, err = vk.baseUrl.Parse(method)
+	defaultParams = url.Values{}
+	defaultParams.Add("https", "1")
+	defaultParams.Add("v", "5.80")
+	defaultParams.Add("access_token", vk.token.AccessToken)
+
+	return urlToMethod, defaultParams, err
+}
+
 func (vk *Vk) DoIt() {
-	//TODO return objects from request method.
-	method, errU := vk.baseUrl.Parse("friends.get")
-	if errU != nil {
-		log.Fatalf("Cannot friends.get URL:%v", errU)
+	method, params, err := vk.newRequest("friends.get")
+	if err != nil {
+		log.Fatalf("error preparing request:%v", err)
 	}
-	params := url.Values{}
-	//TODO Extract default parameters including token into a separate method.
-	params.Add("https", "1")
-	params.Add("v", "5.80")
+	//TODO return objects from request method.
 	//TODO Make each request configurable with optional parameters. Something like:
 	// vk.Do(friends.Get{Order: "name"})
 	params.Add("fields", "nickname, domain, sex, bdate, city, country, timezone, photo_50, photo_100, "+
 		"photo_200_orig, has_mobile, contacts, education, online, relation, last_seen, status, can_write_private_message,"+
 		" can_see_all_posts, can_post, universities")
 	params.Add("order", "name")
-	params.Add("access_token", vk.token.AccessToken)
 
 	req, err := http.NewRequest("POST", method.String(), strings.NewReader(params.Encode()))
 	if err != nil {
 		log.Fatalf("error creating request:%v", err)
 	}
 	resp, errResp := vk.client.Do(req)
-
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

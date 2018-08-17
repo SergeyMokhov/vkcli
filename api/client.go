@@ -64,10 +64,15 @@ func (vk *Vk) DoIt() {
 		log.Fatalf("error creating request:%v", err)
 	}
 	resp, errResp := vk.client.Do(req)
-	defer resp.Body.Close()
+	if errResp != nil {
+		fmt.Printf("Error:%v", errResp)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		//handle read response error
 	}
-	fmt.Printf("Error:%v\nResponse:%v\nBody:%s", errResp, resp, body)
+	fmt.Printf("Error reading response:%v\nResponse:%v\nBody:%s", err, resp, body)
+
 }

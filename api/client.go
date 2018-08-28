@@ -8,14 +8,12 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 )
 
 type Vk struct {
-	paramLock sync.Mutex
-	client    *http.Client
-	token     *oauth2.Token
-	baseUrl   *url.URL
+	client  *http.Client
+	token   *oauth2.Token
+	baseUrl *url.URL
 	//TODO add auto scheduler that will queue and limit speed to 3 request per second (VK limitation)
 	// see https://vk.com/dev/api_requests
 }
@@ -33,21 +31,9 @@ func NewVk(token *oauth2.Token) *Vk {
 	}
 }
 
-func (vk *Vk) newRequest(method string) (urlToMethod *url.URL, defaultParams url.Values, err error) {
-	vk.paramLock.Lock()
-	defer vk.paramLock.Unlock()
-
-	urlToMethod, err = vk.baseUrl.Parse(method)
-	defaultParams = url.Values{}
-	defaultParams.Add("https", "1")
-	defaultParams.Add("v", "5.80")
-	defaultParams.Add("access_token", vk.token.AccessToken)
-
-	return urlToMethod, defaultParams, err
-}
-
 func (vk *Vk) DoIt() {
-	method, params, err := vk.newRequest("friends.get")
+	rb := NewRequestBuilder(vk)
+	method, params, err := rb.NewRequest("friends.get")
 	if err != nil {
 		log.Fatalf("error preparing request:%v", err)
 	}

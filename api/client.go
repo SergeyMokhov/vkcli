@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"gitlab.com/g00g/vkcli/api/requests/friends"
 	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
@@ -33,7 +34,7 @@ func NewVk(token *oauth2.Token) *Vk {
 
 func (vk *Vk) DoIt() {
 	rb := NewRequestBuilder(vk)
-	method, params, err := rb.NewRequest("friends.get")
+	method, params, err := rb.NewRequest(friends.Get())
 	if err != nil {
 		log.Fatalf("error preparing request:%v", err)
 	}

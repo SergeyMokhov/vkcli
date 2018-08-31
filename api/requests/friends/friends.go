@@ -38,6 +38,21 @@ func (fg *friendsGetRequest) SetOrder(order OrderOfFriends) *friendsGetRequest {
 	return fg
 }
 
+func (fg *friendsGetRequest) SetListId(positive int) *friendsGetRequest {
+	fg.values.Add("list_id", strconv.Itoa(positive))
+	return fg
+}
+
+func (fg *friendsGetRequest) SetCount(positive int) *friendsGetRequest {
+	fg.values.Add("count", strconv.Itoa(positive))
+	return fg
+}
+
+func (fg *friendsGetRequest) SetOffset(positive int) *friendsGetRequest {
+	fg.values.Add("offset", strconv.Itoa(positive))
+	return fg
+}
+
 func Get() *friendsGetRequest {
 	return &friendsGetRequest{values: url.Values{}}
 }

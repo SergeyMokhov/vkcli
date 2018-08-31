@@ -28,3 +28,21 @@ func TestFriendsGetRequest_SetOrder(t *testing.T) {
 	actual := fgr.UrlValues().Get("order")
 	require.EqualValues(t, "name", actual)
 }
+
+func TestFriendsGetRequest_SetListId(t *testing.T) {
+	fgr := Get().SetListId(7)
+	actual := fgr.UrlValues().Get("list_id")
+	require.EqualValues(t, "7", actual)
+}
+
+func TestFriendsGetRequest_SetCount(t *testing.T) {
+	fgr := Get().SetCount(10000)
+	actual := fgr.UrlValues().Get("count")
+	require.EqualValues(t, "10000", actual)
+}
+
+func TestFriendsGetRequest_SetOffset(t *testing.T) {
+	fgr := Get().SetOffset(4)
+	actual := fgr.UrlValues().Get("offset")
+	require.EqualValues(t, "4", actual)
+}

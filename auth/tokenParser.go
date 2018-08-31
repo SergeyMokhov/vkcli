@@ -91,7 +91,7 @@ func (c *config) AuthCodeURL(state string, opts map[string]string) string {
 func (c *config) DefaultOptions() map[string]string {
 	return map[string]string{
 		"display": "page",
-		"v":       "5.80",
+		"v":       "5.84",
 	}
 }
 

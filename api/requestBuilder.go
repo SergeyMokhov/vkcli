@@ -19,7 +19,7 @@ func (rb *RequestBuilder) NewRequest(request vkRequest) (urlToMethod *url.URL, d
 	urlToMethod, err = rb.vk.baseUrl.Parse(request.Method())
 	defaultParams = request.UrlValues()
 	defaultParams.Add("https", "1")
-	defaultParams.Add("v", "5.80")
+	defaultParams.Add("v", "5.84")
 	defaultParams.Add("access_token", rb.vk.token.AccessToken)
 
 	return urlToMethod, defaultParams, err

@@ -46,3 +46,9 @@ func TestFriendsGetRequest_SetOffset(t *testing.T) {
 	actual := fgr.UrlValues().Get("offset")
 	require.EqualValues(t, "4", actual)
 }
+
+func TestFriendsGetRequest_SetFields(t *testing.T) {
+	fgr := Get().SetFields(Nickname, Sex, Domain)
+	actual := fgr.UrlValues().Get("fields")
+	require.EqualValues(t, "nickname,sex,domain", actual)
+}

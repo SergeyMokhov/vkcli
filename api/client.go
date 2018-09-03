@@ -34,17 +34,17 @@ func NewVk(token *oauth2.Token) *Vk {
 
 func (vk *Vk) DoIt() {
 	rb := NewRequestBuilder(vk)
-	method, params, err := rb.NewRequest(friends.Get())
+	method, params, err := rb.NewRequest(friends.Get().SetFields(friends.Nickname))
 	if err != nil {
 		log.Fatalf("error preparing request:%v", err)
 	}
 	//TODO return objects from request method.
 	//TODO Make each request configurable with optional parameters. Something like:
 	// vk.Do(friends.Get{Order: "name"})
-	params.Add("fields", "nickname, domain, sex, bdate, city, country, timezone, photo_50, photo_100, "+
-		"photo_200_orig, has_mobile, contacts, education, online, relation, last_seen, status, can_write_private_message,"+
-		" can_see_all_posts, can_post, universities")
-	params.Add("order", "name")
+	//params.Add("fields", "nickname, domain, sex, bdate, city, country, timezone, photo_50, photo_100, "+
+	//	"photo_200_orig, has_mobile, contacts, education, online, relation, last_seen, status, can_write_private_message,"+
+	//	" can_see_all_posts, can_post, universities")
+	//params.Add("order", "name")
 
 	req, err := http.NewRequest("POST", method.String(), strings.NewReader(params.Encode()))
 	if err != nil {

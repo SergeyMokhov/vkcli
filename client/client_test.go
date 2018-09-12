@@ -1,4 +1,4 @@
-package api
+package client
 
 import (
 	"github.com/stretchr/testify/require"
@@ -9,7 +9,5 @@ import (
 func TestNewVk(t *testing.T) {
 	vk := NewVk(&oauth2.Token{})
 
-	require.NotNil(t, vk.token)
-	require.NotNil(t, vk.client)
-	require.NotNil(t, vk.baseUrl)
+	require.NotNil(t, vk.api)
 }

@@ -1,7 +1,10 @@
 package friends
 
 import (
+	"encoding/json"
 	"fmt"
+	"gitlab.com/g00g/vkcli/api"
+	"gitlab.com/g00g/vkcli/api/obj"
 	"net/url"
 	"strconv"
 	"strings"
@@ -34,7 +37,19 @@ const (
 	CanSeeAllPhotos        fields = "can_see_all_posts"
 	CanPost                fields = "can_post"
 	Universities           fields = "universities"
+	//todo add other user fields from the user object https://vk.com/dev/fields
+	//todo see if it is possible to use schema somehow https://github.com/VKCOM/vk-api-schema/blob/master/objects.json
+	//todo  Schema element for user is users_user_full
 )
+
+type FriendsGetResponse struct {
+	Value FriendsGetResponseValue `json:"response"`
+}
+
+type FriendsGetResponseValue struct {
+	Count int        `json:"count"`
+	Items []obj.User `json:"items"`
+}
 
 type friendsGetRequest struct {
 	values url.Values
@@ -50,6 +65,20 @@ func (fg *friendsGetRequest) UrlValues() url.Values {
 
 func (fg *friendsGetRequest) Method() string {
 	return fmt.Sprint(methodBase, "get")
+}
+
+func (fg *friendsGetRequest) Perform(api *api.Api) (response *FriendsGetResponse, err error) {
+	ret := FriendsGetResponse{}
+	responseJson, err := api.Perform(fg)
+	if err != nil {
+		return &FriendsGetResponse{}, err
+	}
+	err = json.Unmarshal(responseJson, &ret)
+	if err != nil {
+		return &FriendsGetResponse{}, fmt.Errorf("error parsing json to struct:%v", err)
+	}
+
+	return &ret, nil
 }
 
 func (fg *friendsGetRequest) SetUserId(usrId int) *friendsGetRequest {

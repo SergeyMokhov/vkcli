@@ -1,7 +1,14 @@
 package friends
 
 import (
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/g00g/vkcli/api"
+	"golang.org/x/oauth2"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -51,4 +58,29 @@ func TestFriendsGetRequest_SetFields(t *testing.T) {
 	fgr := Get().SetFields(Nickname, Sex, Domain)
 	actual := fgr.UrlValues().Get("fields")
 	require.EqualValues(t, "nickname,sex,domain", actual)
+}
+
+func TestFriendsGetRequest_Perform(t *testing.T) {
+	fakeResponse := `{"response": {"count": 1,"items": [{"id": 12345,"first_name": "Alexander","last_name": "Ivanov",
+"bdate": "20.2.1985","online": 0}]}}`
+	actualRequest := &http.Request{}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		actualRequest = r
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, fakeResponse)
+	}))
+	defer ts.Close()
+
+	requestSender := api.NewInstance(&oauth2.Token{AccessToken: "123"})
+	baseUrl, urlParseErr := url.Parse(ts.URL)
+	require.Nil(t, urlParseErr)
+	requestSender.BaseUrl = baseUrl
+
+	userlist, err := Get().SetOrder(Name).Perform(requestSender)
+	require.Nil(t, err)
+	assert.EqualValues(t, "/friends.get", actualRequest.RequestURI)
+	assert.EqualValues(t, 1, userlist.Value.Count)
+	require.EqualValues(t, 1, len(userlist.Value.Items))
+	require.EqualValues(t, 12345, userlist.Value.Items[0].Id)
 }

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"gitlab.com/g00g/vkcli/api"
 	"gitlab.com/g00g/vkcli/auth"
+	"gitlab.com/g00g/vkcli/client"
 	"gitlab.com/g00g/vkcli/tools"
 	"log"
 	"path/filepath"
@@ -25,8 +25,8 @@ func Start() {
 		log.Fatal(fmt.Errorf("error parsing token: %v", err))
 	}
 
-	vk := api.NewVk(token)
-	vk.DoIt()
+	vk := client.NewVk(token)
+	vk.ListFriends()
 	//TODO Implement a client for making requests to VK
 }
 

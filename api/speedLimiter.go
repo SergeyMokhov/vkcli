@@ -7,35 +7,39 @@ import (
 type SpeedLimiter struct {
 	limit            int
 	ticker           time.Ticker
-	pool             int
 	allowedToExecute chan bool
 	stop             chan bool
 }
 
-func NewSpeedLimiter(maxTimes int, aTimeUnit time.Duration) *SpeedLimiter {
-	sl := &SpeedLimiter{
-		limit:            maxTimes,
-		ticker:           *time.NewTicker(aTimeUnit),
-		pool:             maxTimes,
-		allowedToExecute: make(chan bool, maxTimes),
-		stop:             make(chan bool),
-	}
-	startFillingBuffer(sl)
+func NewSpeedLimiter(maxTimes int, every time.Duration) *SpeedLimiter {
+	sl := newSpeedLimiter(maxTimes, every)
+	topUpBuffer(sl)
+	startFillingBufferByTimer(sl)
 	return sl
 }
 
-func fillBuffer(sl *SpeedLimiter) {
-	for i := 0; i < sl.limit; i++ {
+func newSpeedLimiter(maxTimes int, aTimeUnit time.Duration) *SpeedLimiter {
+	return &SpeedLimiter{
+		limit:            maxTimes,
+		ticker:           *time.NewTicker(aTimeUnit),
+		allowedToExecute: make(chan bool, maxTimes),
+		stop:             make(chan bool),
+	}
+}
+
+func topUpBuffer(sl *SpeedLimiter) {
+	topUpTimes := sl.limit - len(sl.allowedToExecute)
+	for i := 0; i < topUpTimes; i++ {
 		sl.allowedToExecute <- true
 	}
 }
 
-func startFillingBuffer(sl *SpeedLimiter) {
+func startFillingBufferByTimer(sl *SpeedLimiter) {
 	go func() {
 		for {
 			select {
 			case <-sl.ticker.C:
-				fillBuffer(sl)
+				topUpBuffer(sl)
 			case <-sl.stop:
 				return
 			}

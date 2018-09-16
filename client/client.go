@@ -17,12 +17,13 @@ func NewVk(token *oauth2.Token) *Vk {
 }
 
 func (vk *Vk) ListFriends() {
-	v, err := friends.Get().SetFields(friends.BDate).Perform(vk.api)
+	v, err := friends.Get().SetFields(friends.BDate, friends.HasMobile, friends.Nickname).Perform(vk.api)
 	if err != nil {
 		log.Fatalf("Failed to list friends:%v", err)
 	}
 	fmt.Printf("Count:%v, Lenth:%v\n", v.Value.Count, len(v.Value.Items))
 	for i, val := range v.Value.Items {
-		fmt.Printf("%v.	ID: %v\n", i, val.Id)
+		fmt.Printf("%v.	ID: %v,	Name: %v %v %v,	Deactivated: %v	BDate: %v,	HasMobile: %v\n",
+			i, val.Id, val.FirstName, val.Nickname, val.LastName, val.Deactivated, val.BDate, val.HasMobile)
 	}
 }

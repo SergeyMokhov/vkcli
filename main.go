@@ -27,7 +27,6 @@ func Start() {
 
 	vk := client.NewVk(token)
 	vk.ListFriends()
-	//TODO Implement a client for making requests to VK
 }
 
 func initFromConfigFile(pathToConfig string) (tokenUrl string) {

@@ -21,6 +21,10 @@ func (vk *Vk) ListFriends() {
 	if err != nil {
 		log.Fatalf("Failed to list friends:%v", err)
 	}
+	if v.Error.ErrorCode != 0 {
+		fmt.Printf("Vk returned an error: %v", v.Error)
+		return
+	}
 	fmt.Printf("Count:%v, Lenth:%v\n", v.Value.Count, len(v.Value.Items))
 	for i, val := range v.Value.Items {
 		fmt.Printf("%v.	ID: %v,	Name: %v %v %v,	Deactivated: %v	BDate: %v,	HasMobile: %v\n",

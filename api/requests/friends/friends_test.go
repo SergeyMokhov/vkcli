@@ -12,6 +12,55 @@ import (
 	"testing"
 )
 
+const (
+	fakeValidResponse = `{
+  "response": {
+    "count": 1,
+    "items": [
+      {
+        "id": 12345,
+        "first_name": "Alexander",
+        "last_name": "Ivanov",
+        "bdate": "20.2.1985",
+        "online": 0
+      }
+    ]
+  }
+}`
+	errorResponse = `{
+	 "error": {
+	   "error_code": 5,
+	   "error_msg": "User authorization failed: no access_token passed.",
+	   "request_params": [
+	     {
+	       "key": "oauth",
+	       "value": "1"
+	     },
+	     {
+	       "key": "method",
+	       "value": "friends.get"
+	     },
+	     {
+	       "key": "fields",
+	       "value": "bdate,has_mobile,nickname"
+	     },
+	     {
+	       "key": "https",
+	       "value": "1"
+	     },
+	     {
+	       "key": "user_id",
+	       "value": "70007"
+	     },
+	     {
+	       "key": "v",
+	       "value": "5.84"
+	     }
+	   ]
+	 }
+	}`
+)
+
 func TestFriendsGetRequest_Method(t *testing.T) {
 	fgr := Get()
 	actual := fgr.Method()
@@ -61,14 +110,12 @@ func TestFriendsGetRequest_SetFields(t *testing.T) {
 }
 
 func TestFriendsGetRequest_Perform(t *testing.T) {
-	fakeResponse := `{"response": {"count": 1,"items": [{"id": 12345,"first_name": "Alexander","last_name": "Ivanov",
-"bdate": "20.2.1985","online": 0}]}}`
 	actualRequest := &http.Request{}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		actualRequest = r
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, fakeResponse)
+		fmt.Fprintln(w, fakeValidResponse)
 	}))
 	defer ts.Close()
 
@@ -83,4 +130,23 @@ func TestFriendsGetRequest_Perform(t *testing.T) {
 	assert.EqualValues(t, 1, userlist.Value.Count)
 	require.EqualValues(t, 1, len(userlist.Value.Items))
 	require.EqualValues(t, 12345, userlist.Value.Items[0].Id)
+}
+
+func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, errorResponse)
+	}))
+	defer ts.Close()
+
+	requestSender := api.NewInstance(&oauth2.Token{AccessToken: "123"})
+	baseUrl, urlParseErr := url.Parse(ts.URL)
+	require.Nil(t, urlParseErr)
+	requestSender.BaseUrl = baseUrl
+
+	userlist, err := Get().SetOrder(Name).Perform(requestSender)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, len(userlist.Value.Items))
+	require.EqualValues(t, 5, userlist.Error.ErrorCode)
+	require.EqualValues(t, "User authorization failed: no access_token passed.", userlist.Error.ErrorMsg)
 }

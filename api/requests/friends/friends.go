@@ -44,6 +44,7 @@ const (
 
 type FriendsGetResponse struct {
 	Value FriendsGetResponseValue `json:"response"`
+	Error obj.VkErrorInfo         `json:"error"`
 }
 
 type FriendsGetResponseValue struct {

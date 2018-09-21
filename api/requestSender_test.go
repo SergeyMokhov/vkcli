@@ -38,10 +38,10 @@ func TestApi_PerformShouldRatainUrlValuesAndAddDefaultOnes(t *testing.T) {
 	require.Nil(t, urlParseErr)
 	api.BaseUrl = baseUrl
 
-	api.Perform(&req)
+	api.SendRequest(&req)
 
 	assert.EqualValues(t, "valuetest", req.values.Get("testparam"))
-	assert.EqualValues(t, "5.84", req.values.Get("v"))
+	assert.EqualValues(t, "5.85", req.values.Get("v"))
 	assert.EqualValues(t, "1", req.values.Get("https"))
 	assert.EqualValues(t, "123", req.values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequest.RequestURI)
@@ -58,4 +58,8 @@ func (fg *fakeVkRequest) UrlValues() url.Values {
 
 func (fg *fakeVkRequest) Method() string {
 	return fg.method
+}
+
+func (fg *fakeVkRequest) ResponseType() interface{} {
+	return &struct{}{}
 }

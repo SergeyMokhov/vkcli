@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"golang.org/x/oauth2"
 	"io/ioutil"
@@ -21,6 +22,32 @@ type Api struct {
 type vkRequest interface {
 	UrlValues() url.Values
 	Method() string
+	ResponseType() interface{}
+}
+
+type DummyVkRequest struct {
+	Values                url.Values
+	MethodStr             string
+	ResponseStructPointer interface{}
+}
+
+func (dvk *DummyVkRequest) UrlValues() url.Values {
+	return dvk.Values
+}
+
+func (dvk *DummyVkRequest) Method() string {
+	return dvk.MethodStr
+}
+
+func (dvk *DummyVkRequest) ResponseType() interface{} {
+	return dvk.ResponseStructPointer
+}
+
+func NewDummyVkRequest(method string, responseType interface{}) *DummyVkRequest {
+	return &DummyVkRequest{
+		Values:                url.Values{},
+		MethodStr:             method,
+		ResponseStructPointer: responseType}
 }
 
 func NewInstance(token *oauth2.Token) *Api {
@@ -43,32 +70,41 @@ func NewInstance(token *oauth2.Token) *Api {
 func (rb *Api) addDefaultParams(request vkRequest) {
 	defaultParams := request.UrlValues()
 	defaultParams.Add("https", "1")
-	defaultParams.Add("v", "5.84")
+	defaultParams.Add("v", "5.85")
 	defaultParams.Add("access_token", rb.token.AccessToken)
 }
 
-func (rb *Api) Perform(request vkRequest) (responseBody []byte, err error) {
+func (rb *Api) SendRequest(request vkRequest) (err error) {
 	<-rb.speedLimiter
 	rb.addDefaultParams(request)
 	method, errUrl := rb.BaseUrl.Parse(request.Method())
 	if errUrl != nil {
-		return []byte{}, fmt.Errorf("cannot parse method URL:%v", errUrl)
+		return fmt.Errorf("cannot parse method URL:%v", errUrl)
 	}
 
 	req, err := http.NewRequest("POST", method.String(), strings.NewReader(request.UrlValues().Encode()))
 	if err != nil {
-		return []byte{}, fmt.Errorf("error creating request:%v", err)
+		return fmt.Errorf("error creating request:%v", err)
 	}
 
 	resp, errResp := rb.client.Do(req)
 	if errResp != nil {
-		return []byte{}, fmt.Errorf("error performing request:%v", errResp)
+		return fmt.Errorf("error performing request:%v", errResp)
 	}
 
 	body, errReadBody := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if errReadBody != nil {
-		return []byte{}, fmt.Errorf("cannot read response:%v", errReadBody)
+		return fmt.Errorf("cannot read response:%v", errReadBody)
 	}
-	return body, nil
+
+	return unmarshal(body, request.ResponseType())
+}
+
+func unmarshal(what []byte, to interface{}) (err error) {
+	err = json.Unmarshal(what, to)
+	if err != nil {
+		err = fmt.Errorf("error parsing json to struct:%v", err)
+	}
+	return err
 }

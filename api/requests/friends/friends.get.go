@@ -1,11 +1,9 @@
 package friends
 
 import (
-	"encoding/json"
 	"fmt"
 	"gitlab.com/g00g/vkcli/api"
 	"gitlab.com/g00g/vkcli/api/obj"
-	"net/url"
 	"strconv"
 	"strings"
 )
@@ -53,57 +51,46 @@ type FriendsGetResponseValue struct {
 }
 
 type friendsGetRequest struct {
-	values url.Values
+	*api.DummyVkRequest
 }
 
 type fields string
 
 type order string
 
-func (fg *friendsGetRequest) UrlValues() url.Values {
-	return fg.values
-}
-
-func (fg *friendsGetRequest) Method() string {
-	return fmt.Sprint(methodBase, "get")
-}
-
 func (fg *friendsGetRequest) Perform(api *api.Api) (response *FriendsGetResponse, err error) {
-	ret := FriendsGetResponse{}
-	responseJson, err := api.Perform(fg)
-	if err != nil {
-		return &FriendsGetResponse{}, err
-	}
-	err = json.Unmarshal(responseJson, &ret)
-	if err != nil {
-		return &FriendsGetResponse{}, fmt.Errorf("error parsing json to struct:%v", err)
+	err = api.SendRequest(fg)
+
+	resp, ok := fg.ResponseStructPointer.(*FriendsGetResponse)
+	if ok {
+		return resp, err
 	}
 
-	return &ret, nil
+	return &FriendsGetResponse{}, err
 }
 
 func (fg *friendsGetRequest) SetUserId(usrId int) *friendsGetRequest {
-	fg.values.Add("user_id", strconv.Itoa(usrId))
+	fg.Values.Add("user_id", strconv.Itoa(usrId))
 	return fg
 }
 
 func (fg *friendsGetRequest) SetOrder(order order) *friendsGetRequest {
-	fg.values.Add("order", string(order))
+	fg.Values.Add("order", string(order))
 	return fg
 }
 
 func (fg *friendsGetRequest) SetListId(positive int) *friendsGetRequest {
-	fg.values.Add("list_id", strconv.Itoa(positive))
+	fg.Values.Add("list_id", strconv.Itoa(positive))
 	return fg
 }
 
 func (fg *friendsGetRequest) SetCount(positive int) *friendsGetRequest {
-	fg.values.Add("count", strconv.Itoa(positive))
+	fg.Values.Add("count", strconv.Itoa(positive))
 	return fg
 }
 
 func (fg *friendsGetRequest) SetOffset(positive int) *friendsGetRequest {
-	fg.values.Add("offset", strconv.Itoa(positive))
+	fg.Values.Add("offset", strconv.Itoa(positive))
 	return fg
 }
 
@@ -113,11 +100,13 @@ func (fg *friendsGetRequest) SetFields(fields ...fields) *friendsGetRequest {
 		fieldsStrings[i] = string(f)
 	}
 
-	fg.values.Add("fields", strings.Join(fieldsStrings, ","))
+	fg.Values.Add("fields", strings.Join(fieldsStrings, ","))
 
 	return fg
 }
 
 func Get() *friendsGetRequest {
-	return &friendsGetRequest{values: url.Values{}}
+	return &friendsGetRequest{
+		DummyVkRequest: api.NewDummyVkRequest(fmt.Sprint(methodBase, "get"), &FriendsGetResponse{}),
+	}
 }

@@ -47,6 +47,14 @@ func TestApi_PerformShouldRatainUrlValuesAndAddDefaultOnes(t *testing.T) {
 	assert.EqualValues(t, "/testMethod", actualRequest.RequestURI)
 }
 
+func TestNewDummyVkRequest(t *testing.T) {
+	dr := NewDummyVkRequest("methodName", &struct{}{})
+	require.NotNil(t, dr.Values)
+	require.EqualValues(t, 0, len(dr.UrlValues()))
+	require.NotNil(t, dr.ResponseType())
+	require.EqualValues(t, "methodName", dr.Method())
+}
+
 type fakeVkRequest struct {
 	values url.Values
 	method string

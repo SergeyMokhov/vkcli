@@ -41,8 +41,8 @@ func TestNewSpeedLimiter_DoesNotGoOverOrUnderLimit(t *testing.T) {
 		reads++
 	}
 
-	require.True(t, reads <= expectedRedsMax)
-	require.True(t, reads >= expectedRedsMin)
+	require.True(t, reads <= expectedRedsMax, reads)
+	require.True(t, reads >= expectedRedsMin, reads)
 }
 
 func TestNewSpeedLimiter_BufferGetsToppedUpByMissingAmount(t *testing.T) {

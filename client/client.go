@@ -31,3 +31,9 @@ func (vk *Vk) ListFriends() {
 			i, val.Id, val.FirstName, val.Nickname, val.LastName, val.Deactivated, val.BDate, val.HasMobile)
 	}
 }
+
+func (vk *Vk) AddFriend(id int) {
+	resp, err := friends.Add(id, "lol", friends.AsFriend).Perform(vk.api)
+	fmt.Printf("Response: %v, Error: %v, VkError: %v", resp.Response, err, resp.Error)
+	//TODO handle captcha
+}

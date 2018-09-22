@@ -1,0 +1,47 @@
+package friends
+
+import (
+	"fmt"
+	"gitlab.com/g00g/vkcli/api"
+	"gitlab.com/g00g/vkcli/api/obj"
+	"strconv"
+)
+
+const (
+	AsFollower followerFlag = "1"
+	AsFriend   followerFlag = "0"
+)
+
+type followerFlag string
+
+type friendsAddRequest struct {
+	*api.DummyVkRequest
+}
+
+type FriendsAddResponse struct {
+	Response int             `json:"response"`
+	Error    obj.VkErrorInfo `json:"error"`
+}
+
+func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
+	req := &friendsAddRequest{
+		DummyVkRequest: api.NewDummyVkRequest(fmt.Sprint(methodBase, "add"), &FriendsAddResponse{})}
+
+	req.Values.Add("user_id", strconv.Itoa(userId))
+	req.Values.Add("text", text)
+	req.Values.Add("follow", string(follow))
+
+	return req
+}
+
+//TODO add tests for friends.add
+func (fa *friendsAddRequest) Perform(api *api.Api) (response *FriendsAddResponse, err error) {
+	err = api.SendRequest(fa)
+
+	resp, ok := fa.ResponseStructPointer.(*FriendsAddResponse)
+	if ok {
+		return resp, err
+	}
+
+	return &FriendsAddResponse{}, err
+}

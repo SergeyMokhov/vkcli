@@ -1,6 +1,8 @@
 package obj
 
 type VkErrorInfo struct {
-	ErrorCode int    `json:"error_code"`
-	ErrorMsg  string `json:"error_msg"`
+	ErrorCode  int    `json:"error_code"`
+	ErrorMsg   string `json:"error_msg"`
+	CaptchaSid string `json:"captcha_sid"`
+	CaptchaImg string `json:"captcha_img"`
 }

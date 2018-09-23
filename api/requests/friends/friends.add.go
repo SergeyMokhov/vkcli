@@ -34,7 +34,6 @@ func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
 	return req
 }
 
-//TODO add tests for friends.add
 func (fa *friendsAddRequest) Perform(api *api.Api) (response *FriendsAddResponse, err error) {
 	err = api.SendRequest(fa)
 

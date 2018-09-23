@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fakeValidResponse = `{
+	fakeFriendsGetResponse = `{
   "response": {
     "count": 1,
     "items": [
@@ -115,7 +115,7 @@ func TestFriendsGetRequest_Perform(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		actualRequest = r
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, fakeValidResponse)
+		fmt.Fprintln(w, fakeFriendsGetResponse)
 	}))
 	defer ts.Close()
 

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"gitlab.com/g00g/vkcli/api/obj"
 	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
@@ -72,6 +73,12 @@ func (rb *Api) addDefaultParams(request vkRequest) {
 	defaultParams.Add("https", "1")
 	defaultParams.Add("v", "5.85")
 	defaultParams.Add("access_token", rb.token.AccessToken)
+}
+
+func (rb *Api) AddSolvedCapture(request vkRequest, capture obj.VkErrorInfo, captureAnswer string) {
+	p := request.UrlValues()
+	p.Add("captcha_sid", capture.CaptchaSid)
+	p.Add("captcha_key", captureAnswer)
 }
 
 func (rb *Api) SendRequest(request vkRequest) (err error) {

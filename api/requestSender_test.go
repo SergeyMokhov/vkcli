@@ -70,7 +70,7 @@ func TestNewDummyVkRequest(t *testing.T) {
 
 func TestAddSolvedCaptcha(t *testing.T) {
 	dr := NewDummyVkRequest("methodName", &struct{}{})
-	vkErr := obj.Error{obj.VkErrorInfo{CaptchaSid: "98874562"}}
+	vkErr := obj.Error{VkErrorInfo: obj.VkErrorInfo{CaptchaSid: "98874562"}}
 	addSolvedCaptcha(dr, &vkErr, "zQ7a")
 
 	require.EqualValues(t, "98874562", dr.Values.Get("captcha_sid"))

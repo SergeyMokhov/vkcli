@@ -8,3 +8,7 @@ type VkErrorInfo struct {
 	CaptchaSid string `json:"captcha_sid"`
 	CaptchaImg string `json:"captcha_img"`
 }
+
+type Error struct {
+	VkErrorInfo `json:"error"`
+}

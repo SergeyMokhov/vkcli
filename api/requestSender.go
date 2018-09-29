@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"gitlab.com/g00g/vkcli/api/obj"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -68,44 +70,94 @@ func NewInstance(token *oauth2.Token) *Api {
 	}
 }
 
-func (rb *Api) addDefaultParams(request vkRequest) {
+func addDefaultParams(request vkRequest, accessToken string) {
 	defaultParams := request.UrlValues()
 	defaultParams.Add("https", "1")
 	defaultParams.Add("v", "5.85")
-	defaultParams.Add("access_token", rb.token.AccessToken)
+	defaultParams.Add("access_token", accessToken)
 }
 
-func (rb *Api) AddSolvedCapture(request vkRequest, capture obj.VkErrorInfo, captureAnswer string) {
+func addSolvedCaptcha(request vkRequest, capture *obj.Error, captureAnswer string) {
 	p := request.UrlValues()
 	p.Add("captcha_sid", capture.CaptchaSid)
 	p.Add("captcha_key", captureAnswer)
 }
 
-func (rb *Api) SendRequest(request vkRequest) (err error) {
+func (rb *Api) SendRequestAndRetyOnCaptcha(request vkRequest) (err error) {
+	return sendVkRequestAndRetyOnCaptcha(rb, request)
+}
+
+func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 	<-rb.speedLimiter
-	rb.addDefaultParams(request)
-	method, errUrl := rb.BaseUrl.Parse(request.Method())
+	response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+	if err != nil {
+		return err
+	}
+
+	vkErr := &obj.Error{}
+	err = unmarshal(response, vkErr)
+	if err != nil {
+		return err
+	}
+
+	if vkErr.ErrorCode == obj.CaptchaRequired {
+		captcha := promptForCaptcha(vkErr)
+		addSolvedCaptcha(request, vkErr, captcha)
+		response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+		if err != nil {
+			return err
+		}
+		return unmarshal(response, request.ResponseType())
+	}
+
+	return unmarshal(response, request.ResponseType())
+}
+
+func promptForCaptcha(vkErr *obj.Error) (answer string) {
+	fmt.Printf("Please, solve the capture: %v\nCapture unswer is: ", vkErr.CaptchaImg)
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Fscanln(reader, &answer)
+	return answer
+}
+
+func (rb *Api) SendRequest(request vkRequest) (err error) {
+	return sendVkRequest(rb, request)
+}
+
+func sendVkRequest(rb *Api, request vkRequest) (err error) {
+	<-rb.speedLimiter
+	response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+	if err != nil {
+		return err
+	}
+
+	return unmarshal(response, request.ResponseType())
+}
+
+func sendRequest(request vkRequest, baseUrl *url.URL, accessToken string, client *http.Client) (body []byte, err error) {
+	addDefaultParams(request, accessToken)
+	method, errUrl := baseUrl.Parse(request.Method())
 	if errUrl != nil {
-		return fmt.Errorf("cannot parse method URL:%v", errUrl)
+		return body, fmt.Errorf("cannot parse method URL:%v", errUrl)
 	}
 
 	req, err := http.NewRequest("POST", method.String(), strings.NewReader(request.UrlValues().Encode()))
 	if err != nil {
-		return fmt.Errorf("error creating request:%v", err)
+		return body, fmt.Errorf("error creating request:%v", err)
 	}
 
-	resp, errResp := rb.client.Do(req)
+	resp, errResp := client.Do(req)
 	if errResp != nil {
-		return fmt.Errorf("error performing request:%v", errResp)
+		return body, fmt.Errorf("error performing request:%v", errResp)
 	}
 
 	body, errReadBody := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if errReadBody != nil {
-		return fmt.Errorf("cannot read response:%v", errReadBody)
+		return body, fmt.Errorf("cannot read response:%v", errReadBody)
 	}
 
-	return unmarshal(body, request.ResponseType())
+	return body, nil
 }
 
 func unmarshal(what []byte, to interface{}) (err error) {

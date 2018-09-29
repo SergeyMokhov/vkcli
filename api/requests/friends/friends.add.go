@@ -1,13 +1,10 @@
 package friends
 
 import (
-	"bufio"
 	"fmt"
 	"gitlab.com/g00g/vkcli/api"
 	"gitlab.com/g00g/vkcli/api/obj"
-	"os"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -22,8 +19,8 @@ type friendsAddRequest struct {
 }
 
 type FriendsAddResponse struct {
-	Response int             `json:"response"`
-	Error    obj.VkErrorInfo `json:"error"`
+	Response int `json:"response"`
+	obj.Error
 }
 
 func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
@@ -38,7 +35,7 @@ func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
 }
 
 func (fa *friendsAddRequest) Perform(api *api.Api) (response *FriendsAddResponse, err error) {
-	err = api.SendRequest(fa)
+	err = api.SendRequestAndRetyOnCaptcha(fa)
 
 	resp, ok := fa.ResponseStructPointer.(*FriendsAddResponse)
 	if ok {
@@ -47,17 +44,3 @@ func (fa *friendsAddRequest) Perform(api *api.Api) (response *FriendsAddResponse
 
 	return &FriendsAddResponse{}, err
 }
-
-func (fa *friendsAddRequest) Do(api *api.Api) (response *FriendsAddResponse, err error) {
-	try, err := fa.Perform(api)
-	if try.Error.ErrorCode == obj.CaptchaRequired {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Printf("Please, solve the capture: %v\nCapture unswer is: ", try.Error.CaptchaImg)
-		answer, _ := reader.ReadString('\n')
-		answer = strings.TrimRight(answer, "\n")
-		api.AddSolvedCapture(fa, try.Error, answer)
-		return fa.Perform(api)
-	} else {
-		return try, err
-	}
-} //TODO  add tests for capture handling and retry.

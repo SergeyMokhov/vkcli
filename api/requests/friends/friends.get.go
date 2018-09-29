@@ -42,7 +42,7 @@ const (
 
 type FriendsGetResponse struct {
 	Value FriendsGetResponseValue `json:"response"`
-	Error obj.VkErrorInfo         `json:"error"`
+	obj.Error
 }
 
 type FriendsGetResponseValue struct {
@@ -59,7 +59,7 @@ type fields string
 type order string
 
 func (fg *friendsGetRequest) Perform(api *api.Api) (response *FriendsGetResponse, err error) {
-	err = api.SendRequest(fg)
+	err = api.SendRequestAndRetyOnCaptcha(fg)
 
 	resp, ok := fg.ResponseStructPointer.(*FriendsGetResponse)
 	if ok {

@@ -115,7 +115,7 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 
 //TODO use monkeypatch to test this part.
 func promptForCaptcha(vkErr *obj.Error) (answer string) {
-	fmt.Printf("Please, solve the capture: %v\nCapture unswer is: ", vkErr.CaptchaImg)
+	fmt.Printf("Please, solve the captcha: %v\nCaptcha unswer is: ", vkErr.CaptchaImg)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Fscanln(reader, &answer)
 	return answer

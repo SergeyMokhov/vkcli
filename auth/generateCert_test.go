@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"gitlab.com/g00g/vkcli/tools"
+	"gitlab.com/g00g/vk-cli/tools"
 	"os"
 	"path/filepath"
 	"testing"

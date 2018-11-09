@@ -2,7 +2,7 @@ package auth
 
 import (
 	"fmt"
-	"gitlab.com/g00g/vkcli/tools"
+	"gitlab.com/g00g/vk-cli/tools"
 	"golang.org/x/oauth2"
 	"log"
 	"net"

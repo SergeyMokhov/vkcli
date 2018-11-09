@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/g00g/vkcli/api"
+	"gitlab.com/g00g/vk-cli/api"
 	"golang.org/x/oauth2"
 	"net/http"
 	"net/http/httptest"

@@ -2,8 +2,9 @@ package friends
 
 import (
 	"fmt"
-	"gitlab.com/g00g/vkcli/api"
-	"gitlab.com/g00g/vkcli/api/obj"
+	"gitlab.com/g00g/vk-cli/api"
+	"gitlab.com/g00g/vk-cli/api/obj"
+	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
 	"strconv"
 	"strings"
 )
@@ -42,7 +43,7 @@ const (
 
 type FriendsGetResponse struct {
 	Value FriendsGetResponseValue `json:"response"`
-	obj.Error
+	vkErrors.Error
 }
 
 type FriendsGetResponseValue struct {

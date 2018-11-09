@@ -2,8 +2,8 @@ package friends
 
 import (
 	"fmt"
-	"gitlab.com/g00g/vkcli/api"
-	"gitlab.com/g00g/vkcli/api/obj"
+	"gitlab.com/g00g/vk-cli/api"
+	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
 	"strconv"
 )
 
@@ -20,7 +20,7 @@ type friendsAddRequest struct {
 
 type FriendsAddResponse struct {
 	Response int `json:"response"`
-	obj.Error
+	vkErrors.Error
 }
 
 func Add(userId int, text string, follow followerFlag) *friendsAddRequest {

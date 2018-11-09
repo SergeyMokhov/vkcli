@@ -1,8 +1,8 @@
-package obj
+package vkErrors
 
 const CaptchaRequired = 14
 
-type VkErrorInfo struct {
+type ErrorInfo struct {
 	ErrorCode  int    `json:"error_code"`
 	ErrorMsg   string `json:"error_msg"`
 	CaptchaSid string `json:"captcha_sid"`
@@ -10,5 +10,5 @@ type VkErrorInfo struct {
 }
 
 type Error struct {
-	VkErrorInfo `json:"error"`
+	ErrorInfo `json:"error"`
 }

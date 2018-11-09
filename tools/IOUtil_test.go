@@ -2,7 +2,7 @@ package tools
 
 import (
 	"testing"
-	//"gitlab.com/g00g/vkcli/tools"
+	//"gitlab.com/g00g/vk-cli/tools"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"

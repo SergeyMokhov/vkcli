@@ -2,8 +2,8 @@ package client
 
 import (
 	"fmt"
-	"gitlab.com/g00g/vkcli/api"
-	"gitlab.com/g00g/vkcli/api/requests/friends"
+	"gitlab.com/g00g/vk-cli/api"
+	"gitlab.com/g00g/vk-cli/api/requests/friends"
 	"golang.org/x/oauth2"
 	"log"
 )

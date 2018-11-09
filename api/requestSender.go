@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"gitlab.com/g00g/vkcli/api/obj"
+	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
 	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
@@ -77,10 +77,10 @@ func addDefaultParams(request vkRequest, accessToken string) {
 	defaultParams.Add("access_token", accessToken)
 }
 
-func addSolvedCaptcha(request vkRequest, capture *obj.Error, captureAnswer string) {
+func addSolvedCaptcha(request vkRequest, captcha *vkErrors.Error, captchaAnswer string) {
 	p := request.UrlValues()
-	p.Add("captcha_sid", capture.CaptchaSid)
-	p.Add("captcha_key", captureAnswer)
+	p.Add("captcha_sid", captcha.CaptchaSid)
+	p.Add("captcha_key", captchaAnswer)
 }
 
 func (rb *Api) SendRequestAndRetyOnCaptcha(request vkRequest) (err error) {
@@ -94,13 +94,15 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 		return err
 	}
 
-	vkErr := &obj.Error{}
+	vkErr := &vkErrors.Error{}
 	err = unmarshal(response, vkErr)
 	if err != nil {
 		return err
 	}
-
-	if vkErr.ErrorCode == obj.CaptchaRequired {
+	//TODO move reading the speed limiter to the function that actually sends request. Remove it from all other places
+	//TODO fix double adding of default parameters
+	//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
+	if vkErr.ErrorCode == vkErrors.CaptchaRequired {
 		captcha := promptForCaptcha(vkErr)
 		addSolvedCaptcha(request, vkErr, captcha)
 		response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
@@ -114,7 +116,7 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 }
 
 //TODO use monkeypatch to test this part.
-func promptForCaptcha(vkErr *obj.Error) (answer string) {
+func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	fmt.Printf("Please, solve the captcha: %v\nCaptcha unswer is: ", vkErr.CaptchaImg)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Fscanln(reader, &answer)

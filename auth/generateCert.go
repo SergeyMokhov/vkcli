@@ -41,7 +41,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"gitlab.com/g00g/vkcli/tools"
+	"gitlab.com/g00g/vk-cli/tools"
 	"math/big"
 	"net"
 	"os"

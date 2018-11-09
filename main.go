@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"gitlab.com/g00g/vkcli/auth"
-	"gitlab.com/g00g/vkcli/client"
-	"gitlab.com/g00g/vkcli/tools"
+	"gitlab.com/g00g/vk-cli/auth"
+	"gitlab.com/g00g/vk-cli/client"
+	"gitlab.com/g00g/vk-cli/tools"
 	"log"
 	"path/filepath"
 )
@@ -27,7 +27,7 @@ func Start() {
 
 	vk := client.NewVk(token)
 	//vk.ListFriends()
-	vk.AddFriend(1)
+	vk.AddFriend(155633421)
 }
 
 func initFromConfigFile(pathToConfig string) (tokenUrl string) {

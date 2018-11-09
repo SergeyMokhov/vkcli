@@ -18,6 +18,8 @@ before_script:
   - go get github.com/spf13/viper
   - go get golang.org/x/oauth2
   - go get github.com/stretchr/testify/require
+  - go get github.com/stretchr/testify/assert
+  - go get bou.ke/monkey
 
 stages:
     - test

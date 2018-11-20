@@ -144,7 +144,7 @@ func TestApi_SendRequest_AndRetry(t *testing.T) {
 }
 
 func TestNewDummyVkRequest(t *testing.T) {
-	dr := NewDummyVkRequest("methodName", &struct{}{})
+	dr := NewVkRequestBase("methodName", &struct{}{})
 	require.NotNil(t, dr.Values)
 	require.EqualValues(t, 0, len(dr.UrlValues()))
 	require.NotNil(t, dr.ResponseType())
@@ -152,7 +152,7 @@ func TestNewDummyVkRequest(t *testing.T) {
 }
 
 func TestAddSolvedCaptcha(t *testing.T) {
-	dr := NewDummyVkRequest("methodName", &struct{}{})
+	dr := NewVkRequestBase("methodName", &struct{}{})
 	vkErr := vkErrors.Error{ErrorInfo: vkErrors.ErrorInfo{CaptchaSid: "98874562"}}
 	addSolvedCaptcha(dr, &vkErr, "zQ7a")
 

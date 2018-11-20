@@ -15,7 +15,7 @@ const (
 type followerFlag string
 
 type friendsAddRequest struct {
-	*api.DummyVkRequest
+	*api.VkRequestBase
 }
 
 type FriendsAddResponse struct {
@@ -25,7 +25,7 @@ type FriendsAddResponse struct {
 
 func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
 	req := &friendsAddRequest{
-		DummyVkRequest: api.NewDummyVkRequest(fmt.Sprint(methodBase, "add"), &FriendsAddResponse{})}
+		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "add"), &FriendsAddResponse{})}
 
 	req.Values.Add("user_id", strconv.Itoa(userId))
 	req.Values.Add("text", text)

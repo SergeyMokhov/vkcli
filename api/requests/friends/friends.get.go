@@ -52,7 +52,7 @@ type FriendsGetResponseValue struct {
 }
 
 type friendsGetRequest struct {
-	*api.DummyVkRequest
+	*api.VkRequestBase
 }
 
 type fields string
@@ -108,6 +108,6 @@ func (fg *friendsGetRequest) SetFields(fields ...fields) *friendsGetRequest {
 
 func Get() *friendsGetRequest {
 	return &friendsGetRequest{
-		DummyVkRequest: api.NewDummyVkRequest(fmt.Sprint(methodBase, "get"), &FriendsGetResponse{}),
+		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "get"), &FriendsGetResponse{}),
 	}
 }

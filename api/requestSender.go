@@ -28,26 +28,26 @@ type vkRequest interface {
 	ResponseType() interface{}
 }
 
-type DummyVkRequest struct {
+type VkRequestBase struct {
 	Values                url.Values
 	MethodStr             string
 	ResponseStructPointer interface{}
 }
 
-func (dvk *DummyVkRequest) UrlValues() url.Values {
+func (dvk *VkRequestBase) UrlValues() url.Values {
 	return dvk.Values
 }
 
-func (dvk *DummyVkRequest) Method() string {
+func (dvk *VkRequestBase) Method() string {
 	return dvk.MethodStr
 }
 
-func (dvk *DummyVkRequest) ResponseType() interface{} {
+func (dvk *VkRequestBase) ResponseType() interface{} {
 	return dvk.ResponseStructPointer
 }
 
-func NewDummyVkRequest(method string, responseType interface{}) *DummyVkRequest {
-	return &DummyVkRequest{
+func NewVkRequestBase(method string, responseType interface{}) *VkRequestBase {
+	return &VkRequestBase{
 		Values:                url.Values{},
 		MethodStr:             method,
 		ResponseStructPointer: responseType}
@@ -115,7 +115,6 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 	return unmarshal(response, request.ResponseType())
 }
 
-//TODO use monkeypatch to test this part.
 func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	fmt.Printf("Please, solve the captcha: %v\nCaptcha unswer is: ", vkErr.CaptchaImg)
 	reader := bufio.NewReader(os.Stdin)

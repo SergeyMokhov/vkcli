@@ -160,6 +160,20 @@ func TestAddSolvedCaptcha(t *testing.T) {
 	require.EqualValues(t, "zQ7a", dr.Values.Get("captcha_key"))
 }
 
+func TestAddDefaultVkRequestParamsOnlyOnce(t *testing.T) {
+	vkr := NewVkRequestBase("tst", struct{}{})
+
+	addDefaultParams(vkr, "token")
+	addDefaultParams(vkr, "token")
+	addDefaultParams(vkr, "token2")
+
+	params := vkr.UrlValues()
+	assert.EqualValues(t, 1, len(params["access_token"]))
+	assert.EqualValues(t, "token", params.Get("access_token"))
+	assert.EqualValues(t, 1, len(params["v"]))
+	assert.EqualValues(t, 1, len(params["https"]))
+}
+
 type fakeVkRequest struct {
 	values url.Values
 	method string

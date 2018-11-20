@@ -72,9 +72,15 @@ func NewInstance(token *oauth2.Token) *Api {
 
 func addDefaultParams(request vkRequest, accessToken string) {
 	defaultParams := request.UrlValues()
-	defaultParams.Add("https", "1")
-	defaultParams.Add("v", "5.85")
-	defaultParams.Add("access_token", accessToken)
+	if len(defaultParams["https"]) == 0 {
+		defaultParams.Add("https", "1")
+	}
+	if len(defaultParams["v"]) == 0 {
+		defaultParams.Add("v", "5.85")
+	}
+	if len(defaultParams["access_token"]) == 0 {
+		defaultParams.Add("access_token", accessToken)
+	}
 }
 
 func addSolvedCaptcha(request vkRequest, captcha *vkErrors.Error, captchaAnswer string) {
@@ -100,7 +106,6 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 		return err
 	}
 	//TODO move reading the speed limiter to the function that actually sends request. Remove it from all other places
-	//TODO fix double adding of default parameters
 	//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
 	if vkErr.ErrorCode == vkErrors.CaptchaRequired {
 		captcha := promptForCaptcha(vkErr)

@@ -94,8 +94,7 @@ func (rb *Api) SendRequestAndRetyOnCaptcha(request vkRequest) (err error) {
 }
 
 func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
-	<-rb.speedLimiter
-	response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+	response, err := sendRequest(rb, request)
 	if err != nil {
 		return err
 	}
@@ -105,12 +104,11 @@ func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
 	if err != nil {
 		return err
 	}
-	//TODO move reading the speed limiter to the function that actually sends request. Remove it from all other places
 	//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
 	if vkErr.ErrorCode == vkErrors.CaptchaRequired {
 		captcha := promptForCaptcha(vkErr)
 		addSolvedCaptcha(request, vkErr, captcha)
-		response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+		response, err := sendRequest(rb, request)
 		if err != nil {
 			return err
 		}
@@ -127,13 +125,8 @@ func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	return answer
 }
 
-func (rb *Api) SendRequest(request vkRequest) (err error) {
-	return sendVkRequest(rb, request)
-}
-
 func sendVkRequest(rb *Api, request vkRequest) (err error) {
-	<-rb.speedLimiter
-	response, err := sendRequest(request, rb.BaseUrl, rb.token.AccessToken, rb.client)
+	response, err := sendRequest(rb, request)
 	if err != nil {
 		return err
 	}
@@ -141,9 +134,9 @@ func sendVkRequest(rb *Api, request vkRequest) (err error) {
 	return unmarshal(response, request.ResponseType())
 }
 
-func sendRequest(request vkRequest, baseUrl *url.URL, accessToken string, client *http.Client) (body []byte, err error) {
-	addDefaultParams(request, accessToken)
-	method, errUrl := baseUrl.Parse(request.Method())
+func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
+	addDefaultParams(request, rb.token.AccessToken)
+	method, errUrl := rb.BaseUrl.Parse(request.Method())
 	if errUrl != nil {
 		return body, fmt.Errorf("cannot parse method URL:%v", errUrl)
 	}
@@ -153,7 +146,8 @@ func sendRequest(request vkRequest, baseUrl *url.URL, accessToken string, client
 		return body, fmt.Errorf("error creating request:%v", err)
 	}
 
-	resp, errResp := client.Do(req)
+	<-rb.speedLimiter
+	resp, errResp := rb.client.Do(req)
 	if errResp != nil {
 		return body, fmt.Errorf("error performing request:%v", errResp)
 	}

@@ -125,15 +125,6 @@ func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	return answer
 }
 
-func sendVkRequest(rb *Api, request vkRequest) (err error) {
-	response, err := sendRequest(rb, request)
-	if err != nil {
-		return err
-	}
-
-	return unmarshal(response, request.ResponseType())
-}
-
 func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
 	addDefaultParams(request, rb.token.AccessToken)
 	method, errUrl := rb.BaseUrl.Parse(request.Method())

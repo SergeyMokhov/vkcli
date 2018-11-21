@@ -69,7 +69,6 @@ func TestApi_SendRequest_NoRetry(t *testing.T) {
 		Name string
 		F    func(rb *Api, request vkRequest) (err error)
 	}{
-		{"sendVkRequest", sendVkRequest},
 		{"sendVkRequestAndRetyOnCaptcha", sendVkRequestAndRetyOnCaptcha},
 	}
 

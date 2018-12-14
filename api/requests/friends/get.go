@@ -41,17 +41,17 @@ const (
 	//todo  Schema element for user is users_user_full
 )
 
-type FriendsGetResponse struct {
-	Value FriendsGetResponseValue `json:"response"`
+type GetResponse struct {
+	Value getResponseValue `json:"response"`
 	vkErrors.Error
 }
 
-type FriendsGetResponseValue struct {
+type getResponseValue struct {
 	Count int        `json:"count"`
 	Items []obj.User `json:"items"`
 }
 
-type friendsGetRequest struct {
+type getRequest struct {
 	*api.VkRequestBase
 }
 
@@ -59,43 +59,43 @@ type fields string
 
 type order string
 
-func (fg *friendsGetRequest) Perform(api *api.Api) (response *FriendsGetResponse, err error) {
+func (fg *getRequest) Perform(api *api.Api) (response *GetResponse, err error) {
 	err = api.SendRequestAndRetyOnCaptcha(fg)
 
-	resp, ok := fg.ResponseStructPointer.(*FriendsGetResponse)
+	resp, ok := fg.ResponseStructPointer.(*GetResponse)
 	if ok {
 		return resp, err
 	}
 
-	return &FriendsGetResponse{}, err
+	return &GetResponse{}, err
 }
 
-func (fg *friendsGetRequest) SetUserId(usrId int) *friendsGetRequest {
+func (fg *getRequest) SetUserId(usrId int) *getRequest {
 	fg.Values.Add("user_id", strconv.Itoa(usrId))
 	return fg
 }
 
-func (fg *friendsGetRequest) SetOrder(order order) *friendsGetRequest {
+func (fg *getRequest) SetOrder(order order) *getRequest {
 	fg.Values.Add("order", string(order))
 	return fg
 }
 
-func (fg *friendsGetRequest) SetListId(positive int) *friendsGetRequest {
+func (fg *getRequest) SetListId(positive int) *getRequest {
 	fg.Values.Add("list_id", strconv.Itoa(positive))
 	return fg
 }
 
-func (fg *friendsGetRequest) SetCount(positive int) *friendsGetRequest {
+func (fg *getRequest) SetCount(positive int) *getRequest {
 	fg.Values.Add("count", strconv.Itoa(positive))
 	return fg
 }
 
-func (fg *friendsGetRequest) SetOffset(positive int) *friendsGetRequest {
+func (fg *getRequest) SetOffset(positive int) *getRequest {
 	fg.Values.Add("offset", strconv.Itoa(positive))
 	return fg
 }
 
-func (fg *friendsGetRequest) SetFields(fields ...fields) *friendsGetRequest {
+func (fg *getRequest) SetFields(fields ...fields) *getRequest {
 	fieldsStrings := make([]string, len(fields))
 	for i, f := range fields {
 		fieldsStrings[i] = string(f)
@@ -106,8 +106,8 @@ func (fg *friendsGetRequest) SetFields(fields ...fields) *friendsGetRequest {
 	return fg
 }
 
-func Get() *friendsGetRequest {
-	return &friendsGetRequest{
-		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "get"), &FriendsGetResponse{}),
+func Get() *getRequest {
+	return &getRequest{
+		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "get"), &GetResponse{}),
 	}
 }

@@ -14,18 +14,18 @@ const (
 
 type followerFlag string
 
-type friendsAddRequest struct {
+type addRequest struct {
 	*api.VkRequestBase
 }
 
-type FriendsAddResponse struct {
+type AddResponse struct {
 	Response int `json:"response"`
 	vkErrors.Error
 }
 
-func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
-	req := &friendsAddRequest{
-		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "add"), &FriendsAddResponse{})}
+func Add(userId int, text string, follow followerFlag) *addRequest {
+	req := &addRequest{
+		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "add"), &AddResponse{})}
 
 	req.Values.Add("user_id", strconv.Itoa(userId))
 	req.Values.Add("text", text)
@@ -34,13 +34,13 @@ func Add(userId int, text string, follow followerFlag) *friendsAddRequest {
 	return req
 }
 
-func (fa *friendsAddRequest) Perform(api *api.Api) (response *FriendsAddResponse, err error) {
+func (fa *addRequest) Perform(api *api.Api) (response *AddResponse, err error) {
 	err = api.SendRequestAndRetyOnCaptcha(fa)
 
-	resp, ok := fa.ResponseStructPointer.(*FriendsAddResponse)
+	resp, ok := fa.ResponseStructPointer.(*AddResponse)
 	if ok {
 		return resp, err
 	}
 
-	return &FriendsAddResponse{}, err
+	return &AddResponse{}, err
 }

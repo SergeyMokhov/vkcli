@@ -60,7 +60,7 @@ type fields string
 type order string
 
 func (fg *getRequest) Perform(api *api.Api) (response *GetResponse, err error) {
-	err = api.SendRequestAndRetyOnCaptcha(fg)
+	err = api.SendVkRequestAndRetryOnCaptcha(fg)
 
 	resp, ok := fg.ResponseStructPointer.(*GetResponse)
 	if ok {

@@ -35,7 +35,7 @@ func Add(userId int, text string, follow followerFlag) *addRequest {
 }
 
 func (fa *addRequest) Perform(api *api.Api) (response *AddResponse, err error) {
-	err = api.SendRequestAndRetyOnCaptcha(fa)
+	err = api.SendVkRequestAndRetryOnCaptcha(fa)
 
 	resp, ok := fa.ResponseStructPointer.(*AddResponse)
 	if ok {

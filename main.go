@@ -26,8 +26,8 @@ func Start() {
 	}
 
 	vk := client.NewVk(token)
-	//vk.ListFriends()
-	vk.AddFriend(155633421)
+	vk.ListFriends()
+	//vk.AddFriend(155633421)
 }
 
 func initFromConfigFile(pathToConfig string) (tokenUrl string) {

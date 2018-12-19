@@ -76,7 +76,7 @@ func addDefaultParams(request vkRequest, accessToken string) {
 		defaultParams.Add("https", "1")
 	}
 	if len(defaultParams["v"]) == 0 {
-		defaultParams.Add("v", "5.85")
+		defaultParams.Add("v", "5.92")
 	}
 	if len(defaultParams["access_token"]) == 0 {
 		defaultParams.Add("access_token", accessToken)
@@ -89,16 +89,11 @@ func addSolvedCaptcha(request vkRequest, captcha *vkErrors.Error, captchaAnswer 
 	p.Add("captcha_key", captchaAnswer)
 }
 
-func (rb *Api) SendRequestAndRetyOnCaptcha(request vkRequest) (err error) {
-	return sendVkRequestAndRetyOnCaptcha(rb, request)
-}
-
-func sendVkRequestAndRetyOnCaptcha(rb *Api, request vkRequest) (err error) {
+func (rb *Api) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
 	response, err := sendRequest(rb, request)
 	if err != nil {
 		return err
 	}
-
 	vkErr := &vkErrors.Error{}
 	err = unmarshal(response, vkErr)
 	if err != nil {

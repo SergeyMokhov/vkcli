@@ -12,6 +12,7 @@ import (
 	"testing"
 )
 
+//todo extract user json and put it into user.go class as constant
 const (
 	fakeFriendsGetResponse = `{
   "response": {
@@ -22,7 +23,9 @@ const (
         "first_name": "Alexander",
         "last_name": "Ivanov",
         "bdate": "20.2.1985",
-        "online": 0
+        "online": 0,
+		"is_closed": false,
+		"can_access_closed": true
       }
     ]
   }

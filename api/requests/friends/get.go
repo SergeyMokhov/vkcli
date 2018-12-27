@@ -42,7 +42,7 @@ const (
 )
 
 type GetResponse struct {
-	Value getResponseValue `json:"response"`
+	Response getResponseValue `json:"response"`
 	vkErrors.Error
 }
 

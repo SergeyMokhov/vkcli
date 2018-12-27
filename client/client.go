@@ -25,8 +25,8 @@ func (vk *Vk) ListFriends() {
 		fmt.Printf("Vk returned an error: %v", v.Error)
 		return
 	}
-	fmt.Printf("Count:%v, Lenth:%v\n", v.Value.Count, len(v.Value.Items))
-	for i, val := range v.Value.Items {
+	fmt.Printf("Count:%v, Lenth:%v\n", v.Response.Count, len(v.Response.Items))
+	for i, val := range v.Response.Items {
 		fmt.Printf("%v.	ID: %v,	Name: %v %v %v,	Deactivated: %v	BDate: %v,	HasMobile: %v\n",
 			i, val.Id, val.FirstName, val.Nickname, val.LastName, val.Deactivated, val.BDate, val.HasMobile)
 	}
@@ -34,5 +34,11 @@ func (vk *Vk) ListFriends() {
 
 func (vk *Vk) AddFriend(id int) {
 	resp, err := friends.Add(id, "lol", friends.AsFollower).Perform(vk.api)
+	fmt.Printf("Response: %v, Error: %v, VkError: %v", resp.Response, err, resp.Error)
+}
+
+func (vk *Vk) DeleteFriend(id int) {
+	//Todo create method body
+	resp, err := friends.Delete(id).Perform(vk.api)
 	fmt.Printf("Response: %v, Error: %v, VkError: %v", resp.Response, err, resp.Error)
 }

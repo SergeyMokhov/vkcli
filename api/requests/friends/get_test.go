@@ -130,9 +130,9 @@ func TestFriendsGetRequest_Perform(t *testing.T) {
 	userlist, err := Get().SetOrder(Name).Perform(requestSender)
 	require.Nil(t, err)
 	assert.EqualValues(t, "/friends.get", actualRequest.RequestURI)
-	assert.EqualValues(t, 1, userlist.Value.Count)
-	require.EqualValues(t, 1, len(userlist.Value.Items))
-	require.EqualValues(t, 12345, userlist.Value.Items[0].Id)
+	assert.EqualValues(t, 1, userlist.Response.Count)
+	require.EqualValues(t, 1, len(userlist.Response.Items))
+	require.EqualValues(t, 12345, userlist.Response.Items[0].Id)
 }
 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
@@ -149,7 +149,7 @@ func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
 
 	userlist, err := Get().SetOrder(Name).Perform(requestSender)
 	require.Nil(t, err)
-	require.EqualValues(t, 0, len(userlist.Value.Items))
+	require.EqualValues(t, 0, len(userlist.Response.Items))
 	require.EqualValues(t, 5, userlist.Error.ErrorCode)
 	require.EqualValues(t, "User authorization failed: no access_token passed.", userlist.Error.ErrorMsg)
 }

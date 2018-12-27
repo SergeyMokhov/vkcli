@@ -116,7 +116,11 @@ func (rb *Api) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
 func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	fmt.Printf("Please, solve the captcha: %v\nCaptcha unswer is: ", vkErr.CaptchaImg)
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Fscanln(reader, &answer)
+	_, scanErr := fmt.Fscanln(reader, &answer)
+	if scanErr != nil {
+		fmt.Printf("Error reading captcha unswer: %v", scanErr)
+		//todo add proper logging
+	}
 	return answer
 }
 
@@ -139,7 +143,13 @@ func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
 	}
 
 	body, errReadBody := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
+	defer func() {
+		closeErr := resp.Body.Close()
+		if closeErr != nil {
+			fmt.Printf("Cannot close request body: %v", closeErr)
+			//Todo add proper logging
+		}
+	}()
 	if errReadBody != nil {
 		return body, fmt.Errorf("cannot read response:%v", errReadBody)
 	}

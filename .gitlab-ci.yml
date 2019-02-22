@@ -15,22 +15,18 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
-  - go get github.com/spf13/viper
-  - go get golang.org/x/oauth2
-  - go get github.com/stretchr/testify/require
-  - go get github.com/stretchr/testify/assert
-  - go get bou.ke/monkey
 
 stages:
-    - test
-#    - build
+  - test
+  #    - build
 
 fmt_vet_test:
-    stage: test
-    script:
-      - go fmt $(go list ./... | grep -v /vendor/)
-      - go vet $(go list ./... | grep -v /vendor/)
-      - go test -race $(go list ./... | grep -v /vendor/)
+  stage: test
+  script:
+    - export GO111MODULE=on
+    - go fmt $(go list ./... | grep -v /vendor/)
+    - go vet $(go list ./... | grep -v /vendor/)
+    - go test -race $(go list ./... | grep -v /vendor/)
 
 #compile:
 #    stage: build

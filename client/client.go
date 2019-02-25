@@ -21,7 +21,7 @@ func (vk *Vk) ListFriends() {
 	if err != nil {
 		log.Fatalf("Failed to list friends:%v", err)
 	}
-	if v.Error.ErrorCode != 0 {
+	if v.Error != nil {
 		fmt.Printf("Vk returned an error: %v", v.Error)
 		return
 	}

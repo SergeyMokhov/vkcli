@@ -12,7 +12,6 @@ import (
 	"testing"
 )
 
-//todo extract user json and put it into user.go class as constant
 const (
 	fakeFriendsGetResponse = `{
   "response": {

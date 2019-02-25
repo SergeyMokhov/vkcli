@@ -20,7 +20,11 @@ type addRequest struct {
 
 type AddResponse struct {
 	Response int `json:"response"`
-	vkErrors.Error
+	*vkErrors.Error
+}
+
+func (ar *AddResponse) GetError() *vkErrors.Error {
+	return ar.Error
 }
 
 func Add(userId int, text string, follow followerFlag) *addRequest {

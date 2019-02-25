@@ -132,7 +132,7 @@ func TestApi_SendRequest_AndRetry(t *testing.T) {
 }
 
 func TestNewDummyVkRequest(t *testing.T) {
-	dr := NewVkRequestBase("methodName", &struct{}{})
+	dr := NewVkRequestBase("methodName", &fakeVkResponse{})
 	require.NotNil(t, dr.Values)
 	require.EqualValues(t, 0, len(dr.UrlValues()))
 	require.NotNil(t, dr.ResponseType())
@@ -140,7 +140,7 @@ func TestNewDummyVkRequest(t *testing.T) {
 }
 
 func TestAddSolvedCaptcha(t *testing.T) {
-	dr := NewVkRequestBase("methodName", &struct{}{})
+	dr := NewVkRequestBase("methodName", &fakeVkResponse{})
 	vkErr := vkErrors.Error{ErrorInfo: vkErrors.ErrorInfo{CaptchaSid: "98874562"}}
 	addSolvedCaptcha(dr, &vkErr, "zQ7a")
 
@@ -149,7 +149,7 @@ func TestAddSolvedCaptcha(t *testing.T) {
 }
 
 func TestAddDefaultVkRequestParamsOnlyOnce(t *testing.T) {
-	vkr := NewVkRequestBase("tst", struct{}{})
+	vkr := NewVkRequestBase("tst", &fakeVkResponse{})
 
 	addDefaultParams(vkr, "token")
 	addDefaultParams(vkr, "token")
@@ -163,8 +163,9 @@ func TestAddDefaultVkRequestParamsOnlyOnce(t *testing.T) {
 }
 
 type fakeVkRequest struct {
-	values url.Values
-	method string
+	values   url.Values
+	method   string
+	response fakeVkResponse
 }
 
 func getTestApi(t *testing.T, ts *httptest.Server) *Api {
@@ -183,6 +184,14 @@ func (fg *fakeVkRequest) Method() string {
 	return fg.method
 }
 
-func (fg *fakeVkRequest) ResponseType() interface{} {
-	return &struct{}{}
+func (fg *fakeVkRequest) ResponseType() vkResponse {
+	return &fg.response
+}
+
+type fakeVkResponse struct {
+	*vkErrors.Error
+}
+
+func (fr *fakeVkResponse) GetError() *vkErrors.Error {
+	return fr.Error
 }

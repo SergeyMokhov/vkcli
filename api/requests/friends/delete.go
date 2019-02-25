@@ -14,7 +14,11 @@ type deleteRequest struct {
 //todo create tests
 type DeleteResponse struct {
 	Response deleteResponse `json:"response"`
-	vkErrors.Error
+	*vkErrors.Error
+}
+
+func (dr *DeleteResponse) GetError() *vkErrors.Error {
+	return dr.Error
 }
 
 type deleteResponse struct {

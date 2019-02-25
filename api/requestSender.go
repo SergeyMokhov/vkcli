@@ -25,13 +25,17 @@ type Api struct {
 type vkRequest interface {
 	UrlValues() url.Values
 	Method() string
-	ResponseType() interface{}
+	ResponseType() vkResponse
+}
+
+type vkResponse interface {
+	GetError() *vkErrors.Error
 }
 
 type VkRequestBase struct {
 	Values                url.Values
 	MethodStr             string
-	ResponseStructPointer interface{}
+	ResponseStructPointer vkResponse
 }
 
 func (dvk *VkRequestBase) UrlValues() url.Values {
@@ -42,11 +46,11 @@ func (dvk *VkRequestBase) Method() string {
 	return dvk.MethodStr
 }
 
-func (dvk *VkRequestBase) ResponseType() interface{} {
+func (dvk *VkRequestBase) ResponseType() vkResponse {
 	return dvk.ResponseStructPointer
 }
 
-func NewVkRequestBase(method string, responseType interface{}) *VkRequestBase {
+func NewVkRequestBase(method string, responseType vkResponse) *VkRequestBase {
 	return &VkRequestBase{
 		Values:                url.Values{},
 		MethodStr:             method,
@@ -94,23 +98,25 @@ func (rb *Api) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
 	if err != nil {
 		return err
 	}
-	vkErr := &vkErrors.Error{}
-	err = unmarshal(response, vkErr)
+	responseType := request.ResponseType()
+	err = unmarshal(response, responseType)
 	if err != nil {
 		return err
 	}
-	//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
-	if vkErr.ErrorCode == vkErrors.CaptchaRequired {
-		captcha := promptForCaptcha(vkErr)
-		addSolvedCaptcha(request, vkErr, captcha)
-		response, err := sendRequest(rb, request)
-		if err != nil {
-			return err
+	vkErr := responseType.GetError()
+	if vkErr != nil {
+		//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
+		if vkErr.ErrorCode == vkErrors.CaptchaRequired {
+			captcha := promptForCaptcha(vkErr)
+			addSolvedCaptcha(request, vkErr, captcha)
+			response, err := sendRequest(rb, request)
+			if err != nil {
+				return err
+			}
+			return unmarshal(response, responseType)
 		}
-		return unmarshal(response, request.ResponseType())
 	}
-
-	return unmarshal(response, request.ResponseType())
+	return nil
 }
 
 func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
@@ -158,6 +164,7 @@ func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
 }
 
 func unmarshal(what []byte, to interface{}) (err error) {
+	//todo check why called twice.
 	err = json.Unmarshal(what, to)
 	if err != nil {
 		err = fmt.Errorf("error parsing json to struct:%v", err)

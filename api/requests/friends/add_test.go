@@ -38,6 +38,6 @@ func TestFriendsAddRequest_Perform(t *testing.T) {
 
 	response, err := Add(505, "tst", AsFriend).Perform(requestSender)
 	require.Nil(t, err)
-	assert.EqualValues(t, 0, response.Error.ErrorCode)
+	assert.Nil(t, response.Error)
 	assert.EqualValues(t, 1, response.Response)
 }

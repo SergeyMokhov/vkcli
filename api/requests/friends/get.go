@@ -36,14 +36,15 @@ const (
 	CanSeeAllPhotos        fields = "can_see_all_posts"
 	CanPost                fields = "can_post"
 	Universities           fields = "universities"
-	//todo add other user fields from the user object https://vk.com/dev/fields
-	//todo see if it is possible to use schema somehow https://github.com/VKCOM/vk-api-schema/blob/master/objects.json
-	//todo  Schema element for user is users_user_full
 )
 
 type GetResponse struct {
 	Response getResponseValue `json:"response"`
-	vkErrors.Error
+	*vkErrors.Error
+}
+
+func (gr *GetResponse) GetError() *vkErrors.Error {
+	return gr.Error
 }
 
 type getResponseValue struct {

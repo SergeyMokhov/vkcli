@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	methodBase             string = "friends."
 	Hints                  order  = "hints"
 	Random                 order  = "random"
 	Mobile                 order  = "mobile"

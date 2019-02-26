@@ -135,16 +135,8 @@ func TestFriendsGetRequest_Perform(t *testing.T) {
 }
 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, errorResponse)
-	}))
-	defer ts.Close()
-
-	requestSender := api.NewInstance(&oauth2.Token{AccessToken: "123"})
-	baseUrl, urlParseErr := url.Parse(ts.URL)
-	require.Nil(t, urlParseErr)
-	requestSender.BaseUrl = baseUrl
+	requestSender, close := api.MockApi(errorResponse)
+	defer close()
 
 	userlist, err := Get().SetOrder(Name).Perform(requestSender)
 	require.Nil(t, err)

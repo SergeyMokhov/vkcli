@@ -1,14 +1,9 @@
 package friends
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/g00g/vk-cli/api"
-	"golang.org/x/oauth2"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"testing"
 )
 
@@ -25,16 +20,8 @@ func TestAdd(t *testing.T) {
 }
 
 func TestFriendsAddRequest_Perform(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, friendsAddresponse)
-	}))
-	defer ts.Close()
-
-	requestSender := api.NewInstance(&oauth2.Token{AccessToken: "000"})
-	baseUrl, urlParseErr := url.Parse(ts.URL)
-	require.Nil(t, urlParseErr)
-	requestSender.BaseUrl = baseUrl
+	requestSender, close := api.MockApi(friendsAddresponse)
+	defer close()
 
 	response, err := Add(505, "tst", AsFriend).Perform(requestSender)
 	require.Nil(t, err)

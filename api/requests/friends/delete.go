@@ -11,7 +11,7 @@ type deleteRequest struct {
 	*api.VkRequestBase
 }
 
-//todo create tests
+//todo create tests for parsing different responses and parameters (url values)
 type DeleteResponse struct {
 	Response deleteResponse `json:"response"`
 	*vkErrors.Error

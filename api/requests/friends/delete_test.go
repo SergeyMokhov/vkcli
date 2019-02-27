@@ -1,7 +1,9 @@
 package friends
 
 import (
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/g00g/vk-cli/api"
 	"testing"
 )
 
@@ -15,6 +17,13 @@ func TestDeleteShouldSetUserId(t *testing.T) {
 	require.Equal(t, "101", req.Values.Get("user_id"))
 }
 
-//func TestDeleteShouldParseResponse(t *testing.T) {
-//
-//}
+func TestFriendsDelete_PerformSetsRequestUri(t *testing.T) {
+	mock := api.NewMockApi(successFriendDeleted)
+	defer mock.Shutdown()
+
+	delResponse, err := Delete(1).Perform(mock.Api)
+	require.Nil(t, err)
+	assert.Equal(t, "/friends.delete", mock.LastRequest.RequestURI)
+	assert.Equal(t, 1, delResponse.Response.Success)
+	assert.Equal(t, 1, delResponse.Response.FriendDeleted)
+}

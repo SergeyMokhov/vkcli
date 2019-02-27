@@ -20,11 +20,21 @@ func TestAdd(t *testing.T) {
 }
 
 func TestFriendsAddRequest_Perform(t *testing.T) {
-	requestSender, close := api.MockApi(friendsAddresponse)
-	defer close()
+	mock := api.NewMockApi(friendsAddresponse)
+	defer mock.Shutdown()
 
-	response, err := Add(505, "tst", AsFriend).Perform(requestSender)
+	response, err := Add(505, "tst", AsFriend).Perform(mock.Api)
 	require.Nil(t, err)
 	assert.Nil(t, response.Error)
 	assert.EqualValues(t, 1, response.Response)
+}
+
+func TestFriendsAddRequest_PerformSetsUri(t *testing.T) {
+	mock := api.NewMockApi(friendsAddresponse)
+	defer mock.Shutdown()
+
+	resp, err := Add(1, "sfsdf", AsFriend).Perform(mock.Api)
+	require.Nil(t, err)
+	assert.Equal(t, "/friends.add", mock.LastRequest.RequestURI)
+	assert.Equal(t, 1, resp.Response)
 }

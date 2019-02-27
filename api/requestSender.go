@@ -164,7 +164,6 @@ func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
 }
 
 func unmarshal(what []byte, to interface{}) (err error) {
-	//todo check why called twice.
 	err = json.Unmarshal(what, to)
 	if err != nil {
 		err = fmt.Errorf("error parsing json to struct:%v", err)

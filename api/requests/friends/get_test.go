@@ -1,14 +1,9 @@
 package friends
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/g00g/vk-cli/api"
-	"golang.org/x/oauth2"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"testing"
 )
 
@@ -112,33 +107,22 @@ func TestFriendsGetRequest_SetFields(t *testing.T) {
 }
 
 func TestFriendsGetRequest_Perform(t *testing.T) {
-	actualRequest := &http.Request{}
+	mock := api.NewMockApi(fakeFriendsGetResponse)
+	defer mock.Shutdown()
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		actualRequest = r
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, fakeFriendsGetResponse)
-	}))
-	defer ts.Close()
-
-	requestSender := api.NewInstance(&oauth2.Token{AccessToken: "123"})
-	baseUrl, urlParseErr := url.Parse(ts.URL)
-	require.Nil(t, urlParseErr)
-	requestSender.BaseUrl = baseUrl
-
-	userlist, err := Get().SetOrder(Name).Perform(requestSender)
+	userlist, err := Get().SetOrder(Name).Perform(mock.Api)
 	require.Nil(t, err)
-	assert.EqualValues(t, "/friends.get", actualRequest.RequestURI)
+	assert.EqualValues(t, "/friends.get", mock.LastRequest.RequestURI)
 	assert.EqualValues(t, 1, userlist.Response.Count)
 	require.EqualValues(t, 1, len(userlist.Response.Items))
 	require.EqualValues(t, 12345, userlist.Response.Items[0].Id)
 }
 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
-	requestSender, close := api.MockApi(errorResponse)
-	defer close()
+	mock := api.NewMockApi(errorResponse)
+	defer mock.Shutdown()
 
-	userlist, err := Get().SetOrder(Name).Perform(requestSender)
+	userlist, err := Get().SetOrder(Name).Perform(mock.Api)
 	require.Nil(t, err)
 	require.EqualValues(t, 0, len(userlist.Response.Items))
 	require.EqualValues(t, 5, userlist.Error.ErrorCode)

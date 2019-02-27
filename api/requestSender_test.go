@@ -69,7 +69,7 @@ func TestApi_SendRequest_NoRetry(t *testing.T) {
 "bdate": "20.2.1985","online": 0}]}}`
 	actualRequest := &http.Request{}
 
-	req := fakeVkRequest{values: url.Values{"testparam": []string{"valuetest"}}, method: "testMethod"}
+	req := fakeVkRequest{&VkRequestBase{Values: url.Values{"testparam": []string{"valuetest"}}, MethodStr: "testMethod"}}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		actualRequest = r
 		w.Header().Set("Content-Type", "application/json")
@@ -81,10 +81,10 @@ func TestApi_SendRequest_NoRetry(t *testing.T) {
 
 	api.SendVkRequestAndRetryOnCaptcha(&req)
 
-	assert.EqualValues(t, "valuetest", req.values.Get("testparam"))
-	assert.EqualValues(t, "5.92", req.values.Get("v"))
-	assert.EqualValues(t, "1", req.values.Get("https"))
-	assert.EqualValues(t, "123", req.values.Get("access_token"))
+	assert.EqualValues(t, "valuetest", req.Values.Get("testparam"))
+	assert.EqualValues(t, "5.92", req.Values.Get("v"))
+	assert.EqualValues(t, "1", req.Values.Get("https"))
+	assert.EqualValues(t, "123", req.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequest.RequestURI)
 }
 
@@ -93,7 +93,10 @@ func TestApi_SendRequest_AndRetry(t *testing.T) {
 	fakeResponse := captchaNeededResponse
 	actualRequestFirst := &http.Request{}
 	var r2Body string
-	req := fakeVkRequest{values: url.Values{"testparam": []string{"valuetest"}}, method: "testMethod"}
+	req := fakeVkRequest{&VkRequestBase{
+		Values:                url.Values{"testparam": []string{"valuetest"}},
+		MethodStr:             "testMethod",
+		ResponseStructPointer: &fakeVkResponse{}}}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestCounter++
@@ -124,10 +127,10 @@ func TestApi_SendRequest_AndRetry(t *testing.T) {
 	assert.EqualValues(t, "583944678566", secondRequestParams.Get("captcha_sid"))
 	assert.EqualValues(t, "ABC123", secondRequestParams.Get("captcha_key"))
 	assert.EqualValues(t, 2, requestCounter)
-	assert.EqualValues(t, "valuetest", req.values.Get("testparam"))
-	assert.EqualValues(t, "5.92", req.values.Get("v"))
-	assert.EqualValues(t, "1", req.values.Get("https"))
-	assert.EqualValues(t, "123", req.values.Get("access_token"))
+	assert.EqualValues(t, "valuetest", req.Values.Get("testparam"))
+	assert.EqualValues(t, "5.92", req.Values.Get("v"))
+	assert.EqualValues(t, "1", req.Values.Get("https"))
+	assert.EqualValues(t, "123", req.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequestFirst.RequestURI)
 }
 
@@ -162,36 +165,10 @@ func TestAddDefaultVkRequestParamsOnlyOnce(t *testing.T) {
 	assert.EqualValues(t, 1, len(params["https"]))
 }
 
-type fakeVkRequest struct {
-	values   url.Values
-	method   string
-	response fakeVkResponse
-}
-
 func getTestApi(t *testing.T, ts *httptest.Server) *Api {
 	api := NewInstance(&oauth2.Token{AccessToken: "123"})
 	baseUrl, urlParseErr := url.Parse(ts.URL)
 	require.Nil(t, urlParseErr)
 	api.BaseUrl = baseUrl
 	return api
-}
-
-func (fg *fakeVkRequest) UrlValues() url.Values {
-	return fg.values
-}
-
-func (fg *fakeVkRequest) Method() string {
-	return fg.method
-}
-
-func (fg *fakeVkRequest) ResponseType() vkResponse {
-	return &fg.response
-}
-
-type fakeVkResponse struct {
-	*vkErrors.Error
-}
-
-func (fr *fakeVkResponse) GetError() *vkErrors.Error {
-	return fr.Error
 }

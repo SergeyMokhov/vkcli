@@ -11,7 +11,6 @@ type deleteRequest struct {
 	*api.VkRequestBase
 }
 
-//todo create tests for parsing different responses and parameters (url values)
 type DeleteResponse struct {
 	Response deleteResponse `json:"response"`
 	*vkErrors.Error
@@ -38,6 +37,7 @@ func Delete(id int) *deleteRequest {
 	return rd
 }
 
+// Returns error only if sending request or type conversion fails
 func (dr *deleteRequest) Perform(api *api.Api) (response *DeleteResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(dr)
 

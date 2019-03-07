@@ -38,6 +38,7 @@ func Add(userId int, text string, follow followerFlag) *addRequest {
 	return req
 }
 
+// Returns error only if sending request or type conversion fails
 func (fa *addRequest) Perform(api *api.Api) (response *AddResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(fa)
 

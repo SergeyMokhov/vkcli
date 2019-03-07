@@ -59,6 +59,7 @@ type fields string
 
 type order string
 
+// Returns error only if sending request or type conversion fails
 func (fg *getRequest) Perform(api *api.Api) (response *GetResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(fg)
 

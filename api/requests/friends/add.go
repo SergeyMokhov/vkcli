@@ -1,7 +1,6 @@
 package friends
 
 import (
-	"fmt"
 	"gitlab.com/g00g/vk-cli/api"
 	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
 	"strconv"
@@ -29,7 +28,7 @@ func (ar *AddResponse) GetError() *vkErrors.Error {
 
 func Add(userId int, text string, follow followerFlag) *addRequest {
 	req := &addRequest{
-		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "add"), &AddResponse{})}
+		VkRequestBase: api.NewVkRequestBase(methodBase+"add", &AddResponse{})}
 
 	req.Values.Add("user_id", strconv.Itoa(userId))
 	req.Values.Add("text", text)

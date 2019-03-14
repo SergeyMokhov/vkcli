@@ -1,7 +1,6 @@
 package friends
 
 import (
-	"fmt"
 	"gitlab.com/g00g/vk-cli/api"
 	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
 	"strconv"
@@ -30,7 +29,7 @@ type deleteResponse struct {
 
 func Delete(id int) *deleteRequest {
 	rd := &deleteRequest{
-		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "delete"), &DeleteResponse{}),
+		VkRequestBase: api.NewVkRequestBase(methodBase+"delete", &DeleteResponse{}),
 	}
 
 	rd.setUserId(id)

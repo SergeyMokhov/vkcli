@@ -1,7 +1,6 @@
 package friends
 
 import (
-	"fmt"
 	"gitlab.com/g00g/vk-cli/api"
 	"gitlab.com/g00g/vk-cli/api/obj"
 	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
@@ -109,6 +108,6 @@ func (fg *getRequest) SetFields(fields ...fields) *getRequest {
 
 func Get() *getRequest {
 	return &getRequest{
-		VkRequestBase: api.NewVkRequestBase(fmt.Sprint(methodBase, "get"), &GetResponse{}),
+		VkRequestBase: api.NewVkRequestBase(methodBase+"get", &GetResponse{}),
 	}
 }

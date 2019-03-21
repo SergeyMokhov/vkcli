@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type VkRequestSender interface {
+	SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error)
+}
+
 type Api struct {
 	client       *http.Client
 	token        *oauth2.Token

@@ -59,7 +59,7 @@ type fields string
 type order string
 
 // Returns error only if sending request or type conversion fails
-func (fg *getRequest) Perform(api *api.Api) (response *GetResponse, err error) {
+func (fg *getRequest) Perform(api api.VkRequestSender) (response *GetResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(fg)
 
 	resp, ok := fg.ResponseStructPointer.(*GetResponse)

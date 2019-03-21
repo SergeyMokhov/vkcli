@@ -38,7 +38,7 @@ func Add(userId int, text string, follow followerFlag) *addRequest {
 }
 
 // Returns error only if sending request or type conversion fails
-func (fa *addRequest) Perform(api *api.Api) (response *AddResponse, err error) {
+func (fa *addRequest) Perform(api api.VkRequestSender) (response *AddResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(fa)
 
 	resp, ok := fa.ResponseStructPointer.(*AddResponse)

@@ -9,24 +9,26 @@ import (
 	"net/url"
 )
 
-type mockApi struct {
+//Just regular Api, but sends requests to mock http server instead of real one.
+// Also records last request and can respond with response you want.
+type MockApi struct {
 	Api         *Api
 	Server      *httptest.Server
 	LastRequest *http.Request
 	Response    *string
 }
 
-func (m *mockApi) SetResponse(s string) {
+func (m *MockApi) SetResponse(s string) {
 	m.Response = &s
 }
 
-func (m *mockApi) Shutdown() {
+func (m *MockApi) Shutdown() {
 	m.Server.Close()
 }
 
 //Call the shutdown function once you are done with the mock
-func NewMockApi(response string) *mockApi {
-	mock := &mockApi{}
+func NewMockApi(response string) *MockApi {
+	mock := &MockApi{}
 	mock.SetResponse(response)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mock.LastRequest = r

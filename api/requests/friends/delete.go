@@ -6,6 +6,11 @@ import (
 	"strconv"
 )
 
+var SuccessFriendDeleted = `{"response":{"success":1,"friend_deleted":1}}`
+var SuccessInRequestDeleted = `{"response":{"success":1,"in_request_deleted":1}}`
+var SuccessOutRequestDeleted = `{"response":{"success":1,"out_request_deleted":1}}`
+var FriedDeleteFailureAccessDenied = `{"error":{"error_code":15,"error_msg":"Access denied: No friend or friend request found.","request_params":[{"key":"oauth","value":"1"},{"key":"method","value":"friends.delete"},{"key":"https","value":"1"},{"key":"user_id","value":"2916112"},{"key":"v","value":"5.92"}]}}`
+
 type deleteRequest struct {
 	*api.VkRequestBase
 }
@@ -37,7 +42,7 @@ func Delete(id int) *deleteRequest {
 }
 
 // Returns error only if sending request or type conversion fails
-func (dr *deleteRequest) Perform(api *api.Api) (response *DeleteResponse, err error) {
+func (dr *deleteRequest) Perform(api api.VkRequestSender) (response *DeleteResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(dr)
 
 	resp, ok := dr.ResponseStructPointer.(*DeleteResponse)

@@ -17,6 +17,18 @@ func TestNewVk(t *testing.T) {
 }
 
 func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
+	testCases := []struct {
+		name             string
+		vkServerResponse string
+		expectedOutput   string
+	}{
+		{"Friend deleted from list", friends.SuccessFriendDeleted, "successfully deleted form friend list"},
+		{"Declined incoming request", friends.SuccessInRequestDeclined, "successfully declined friend request"},
+		{"Cancelled outgoing request", friends.SuccessOutRequestCancelled, "successfully cancelled friend request"},
+		//{"Deleted friend suggestion", friends.} Was not able to find response example
+		{"Access Denied", friends.FriedDeleteFailureAccessDenied, "Error removing/declining request"},
+	}
+
 	var captured string
 	monkey.Patch(fmt.Printf,
 		func(format string, a ...interface{}) (n int, err error) {
@@ -25,9 +37,17 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 		})
 	defer monkey.UnpatchAll()
 
-	vk := newVkFromMockApi(api.NewMockApi(friends.SuccessFriendDeleted))
+	mockApi := api.NewMockApi("")
+	vk := newVkFromMockApi(mockApi)
 
-	vk.DeleteFriend(999)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			captured = ""
+			mockApi.SetResponse(tc.vkServerResponse)
 
-	require.Contains(t, captured, "successfully deleted form friend list")
+			vk.DeleteFriend(999)
+
+			require.Contains(t, captured, tc.expectedOutput)
+		})
+	}
 }

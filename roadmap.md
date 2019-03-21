@@ -2,7 +2,7 @@
 - [X] Finish development of "friends.Delete" api function
 - [ ] Implement user list filtering
 - [ ] Implement client function "Remove deleted users from the friend list" (using filtering)
-  - [ ] Print friend deletion result, like "ID - Firstname Lastname deleted from friends" or "..
+  - [X] Print friend deletion result, like "ID - Firstname Lastname deleted from friends" or "..
   .Incoming friend request declined", etc.
   - [ ] Print error message in case of error 
 - [ ] Implement similar output for friends.Add command

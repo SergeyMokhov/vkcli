@@ -24,7 +24,7 @@ func TestFriendsDelete_PerformSetsRequestUri(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformInRequestDeleted(t *testing.T) {
-	mock := api.NewMockApi(SuccessInRequestDeleted)
+	mock := api.NewMockApi(SuccessInRequestDeclined)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)
@@ -34,7 +34,7 @@ func TestFriendsDelete_PerformInRequestDeleted(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformOutRequestDeleted(t *testing.T) {
-	mock := api.NewMockApi(SuccessOutRequestDeleted)
+	mock := api.NewMockApi(SuccessOutRequestCancelled)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)

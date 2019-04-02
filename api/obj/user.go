@@ -9,6 +9,7 @@ type User struct {
 	IsClosed        bool        `json:"is_closed"`
 	CanAccessClosed bool        `json:"can_access_closed"`
 	Hidden          int         `json:"hidden"`
+	Online          int         `json:"online"`
 
 	BDate     string `json:"bdate"`
 	HasMobile int    `json:"has_mobile"`

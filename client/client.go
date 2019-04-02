@@ -5,7 +5,7 @@ import (
 	"gitlab.com/g00g/vk-cli/api"
 	"gitlab.com/g00g/vk-cli/api/requests/friends"
 	"golang.org/x/oauth2"
-	"log"
+	"strconv"
 )
 
 type VkClient interface {
@@ -29,28 +29,51 @@ func newVkFromMockApi(mock *api.MockApi) *Vk {
 }
 
 func (vk *Vk) ListFriends() {
-	v, err := friends.Get().SetFields(friends.BDate, friends.HasMobile, friends.Nickname).Perform(vk.RequestSender())
+	v, err := friends.Get().SetFields(friends.Online, friends.BDate, friends.Nickname).Perform(vk.RequestSender())
 	if err != nil {
-		log.Fatalf("Failed to list friends:%v", err)
+		fmt.Printf("Failed to list friends:%v", err)
+		return
 	}
 	if v.Error != nil {
 		fmt.Printf("Vk returned an error: %v", v.Error)
 		return
 	}
-	fmt.Printf("Count:%v, Lenth:%v\n", v.Response.Count, len(v.Response.Items))
+
+	format := "%6s%20s%20s%20s%20s%13s%6s\n"
+	fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online")
 	for i, val := range v.Response.Items {
-		fmt.Printf("%v.	ID: %v,	Name: %v %v %v,	Deactivated: %v	BDate: %v,	HasMobile: %v\n",
-			i, val.Id, val.FirstName, val.Nickname, val.LastName, val.Deactivated, val.BDate, val.HasMobile)
+		fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate, strconv.Itoa(val.Online))
 	}
 }
 
 func (vk *Vk) AddFriend(id int) {
 	resp, err := friends.Add(id, "lol", friends.AsFollower).Perform(vk.RequestSender())
+	if err != nil {
+		fmt.Printf("Error Adding friend with Id: %v. %v", id, err)
+	}
+
+	var successStringFormat string
+	switch {
+	case resp.Response == 1:
+		successStringFormat = "friend request sent to %v"
+	case resp.Response == 2:
+		successStringFormat = "friend request from %v approved"
+	case resp.Response == 4:
+		successStringFormat = "request resending"
+	default:
+		successStringFormat = "unknown response code: " + strconv.Itoa(resp.Response)
+	}
+
+	switch resp.ErrorCode {
+	case 0:
+		fmt.Printf(successStringFormat, id)
+	default:
+		fmt.Printf("Error adding friend %v: %v", id, resp.Error)
+	}
 	fmt.Printf("Response: %v, Error: %v, VkError: %v", resp.Response, err, resp.Error)
 }
 
 func (vk *Vk) DeleteFriend(id int) {
-	//Todo implement client tests. Including this function.
 	resp, err := friends.Delete(id).Perform(vk.RequestSender())
 	if err != nil {
 		fmt.Printf("Error deleting %v from friend list: %v\n", id, err)

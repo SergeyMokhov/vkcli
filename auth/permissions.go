@@ -35,3 +35,7 @@ func FullUserScope() int32 {
 	}
 	return sum
 }
+
+func Friends() int32 {
+	return AllUserPermissions()["friends"]
+}

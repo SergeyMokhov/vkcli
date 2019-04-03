@@ -8,6 +8,7 @@ import (
 	"gitlab.com/g00g/vk-cli/tools"
 	"log"
 	"path/filepath"
+	"strconv"
 )
 
 func main() {
@@ -51,6 +52,7 @@ func initFromConfigFile(pathToConfig string) (tokenUrl string) {
 
 func requestToken(clientId string, pathToConfig string) {
 	config := auth.NewVkConfig(clientId)
+	config.Scopes = []string{strconv.FormatInt(int64(auth.Friends()), 10)}
 	log.Fatal(fmt.Errorf("tokenUrl: not found in confing file. Looks like this is the first time you run Vk-Cli. "+
 		"Go to the following URL, log in, allow access, than copy url from the adress line. Add copied URL into %v config file"+
 		" as a new line.\nFor example tokenUrl: \"url goes here\"\n%v", pathToConfig, config.AuthCodeURL("", config.DefaultOptions())))

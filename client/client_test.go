@@ -23,8 +23,8 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 		expectedOutput   string
 	}{
 		{"Friend deleted from list", friends.SuccessFriendDeleted, "successfully deleted form friend list"},
-		{"Declined incoming request", friends.SuccessInRequestDeclined, "successfully declined friend request"},
-		{"Cancelled outgoing request", friends.SuccessOutRequestCancelled, "successfully cancelled friend request"},
+		{"Declined incoming request", friends.SuccessInRequestDeclined, "Successfully declined friend request"},
+		{"Cancelled outgoing request", friends.SuccessOutRequestCancelled, "Successfully cancelled friend request"},
 		//{"Deleted friend suggestion", friends.} Was not able to find response example
 		{"Access Denied", friends.FriedDeleteFailureAccessDenied, "Error removing/declining request"},
 	}

@@ -16,3 +16,8 @@ type User struct {
 }
 
 type deactivated string
+
+const (
+	UserDeleted deactivated = "deleted"
+	UserBanned  deactivated = "banned"
+)

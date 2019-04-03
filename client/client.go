@@ -39,10 +39,10 @@ func (vk *Vk) ListFriends() {
 		return
 	}
 
-	format := "%6s%20s%20s%20s%20s%13s%7s\n"
-	fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online")
+	format := "%6s%20s%20s%20s%20s%13s%7s%12s\n"
+	fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online", "Deactivated")
 	for i, val := range v.Response.Items {
-		fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate, strconv.Itoa(val.Online))
+		fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate, strconv.Itoa(val.Online), val.Deactivated)
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/g00g/vk-cli/api"
+	"gitlab.com/g00g/vk-cli/api/obj"
 	"gitlab.com/g00g/vk-cli/api/requests/friends"
 	"golang.org/x/oauth2"
 	"testing"
@@ -50,4 +51,23 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 			require.Contains(t, captured, tc.expectedOutput)
 		})
 	}
+}
+
+func Test_RemoveDeletedFriendsShouldCallDeleteOnlyForUsersWithDeletedFlag(t *testing.T) {
+	monkey.Patch(friends.Get().Perform,
+		func(api api.VkRequestSender) (response *friends.GetResponse, err error) {
+			return &friends.GetResponse{
+				Response: friends.GetResponseValue{
+					Items: []obj.User{
+						{Id: 0},
+						{Id: 1, Deactivated: obj.UserDeleted},
+						{Id: 2}},
+				},
+			}, nil
+		})
+	//TODO finish test
+	//Test by feeding in json?
+	//Create mock inside of friends package?
+	//Redesign using some sort of pattern?
+	//Export GetResponseValue struct?
 }

@@ -37,7 +37,7 @@ const (
 )
 
 type GetResponse struct {
-	Response getResponseValue `json:"response"`
+	Response GetResponseValue `json:"response"`
 	*vkErrors.Error
 }
 
@@ -45,7 +45,7 @@ func (gr *GetResponse) GetError() *vkErrors.Error {
 	return gr.Error
 }
 
-type getResponseValue struct {
+type GetResponseValue struct {
 	Count int        `json:"count"`
 	Items []obj.User `json:"items"`
 }

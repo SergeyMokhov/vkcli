@@ -39,7 +39,7 @@ func (vk *Vk) ListFriends() {
 		return
 	}
 
-	format := "%6s%20s%20s%20s%20s%13s%6s\n"
+	format := "%6s%20s%20s%20s%20s%13s%7s\n"
 	fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online")
 	for i, val := range v.Response.Items {
 		fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate, strconv.Itoa(val.Online))
@@ -47,30 +47,31 @@ func (vk *Vk) ListFriends() {
 }
 
 func (vk *Vk) AddFriend(id int) {
+	errorAddingFriendFormat := "Error adding friend with Id %v: %v\n"
+
 	resp, err := friends.Add(id, "lol", friends.AsFollower).Perform(vk.RequestSender())
 	if err != nil {
-		fmt.Printf("Error Adding friend with Id: %v. %v", id, err)
+		fmt.Printf(errorAddingFriendFormat, id, err)
 	}
 
 	var successStringFormat string
 	switch {
 	case resp.Response == 1:
-		successStringFormat = "friend request sent to %v"
+		successStringFormat = "Friend request sent to %v"
 	case resp.Response == 2:
-		successStringFormat = "friend request from %v approved"
+		successStringFormat = "Friend request from %v has been approved"
 	case resp.Response == 4:
-		successStringFormat = "request resending"
+		successStringFormat = "Request resending"
 	default:
-		successStringFormat = "unknown response code: " + strconv.Itoa(resp.Response)
+		successStringFormat = "Unknown response code: " + strconv.Itoa(resp.Response)
 	}
 
-	switch resp.ErrorCode {
-	case 0:
-		fmt.Printf(successStringFormat, id)
+	switch resp.Error {
+	case nil:
+		fmt.Printf(successStringFormat+"\n", id)
 	default:
-		fmt.Printf("Error adding friend %v: %v", id, resp.Error)
+		fmt.Printf(errorAddingFriendFormat, id, resp.Error)
 	}
-	fmt.Printf("Response: %v, Error: %v, VkError: %v", resp.Response, err, resp.Error)
 }
 
 func (vk *Vk) DeleteFriend(id int) {
@@ -86,11 +87,11 @@ func (vk *Vk) DeleteFriend(id int) {
 	case resp.Response.FriendDeleted == 1:
 		successStringFormat = "%v successfully deleted form friend list"
 	case resp.Response.InRequestDeleted == 1:
-		successStringFormat = "successfully declined friend request from %v"
+		successStringFormat = "Successfully declined friend request from %v"
 	case resp.Response.OutRequestDeleted == 1:
-		successStringFormat = "successfully cancelled friend request to %v"
+		successStringFormat = "Successfully cancelled friend request to %v"
 	default:
-		successStringFormat = "successfully deleted suggestion of %v"
+		successStringFormat = "Successfully deleted suggestion of %v"
 	}
 
 	switch resp.Response.Success {

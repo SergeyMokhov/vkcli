@@ -4,8 +4,8 @@
 - [ ] Implement client function "Remove deleted users from the friend list" (using filtering)
   - [X] Print friend deletion result, like "ID - Firstname Lastname deleted from friends" or "..
   .Incoming friend request declined", etc.
-  - [ ] Print error message in case of error 
-- [ ] Implement similar output for friends.Add command
+  - [X] Print error message in case of error 
+- [X] Implement similar output for friends.Add command
 - [ ] Create documentation including API / Client design and testing guide for contributors
 - [ ] Rename project into vkctl
 - [ ] Implement "Add random friends" funciton.

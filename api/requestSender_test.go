@@ -30,7 +30,7 @@ func TestApi_SendRequest_NoRetry(t *testing.T) {
 	api.SendVkRequestAndRetryOnCaptcha(&req)
 
 	assert.EqualValues(t, "valuetest", req.Values.Get("testparam"))
-	assert.EqualValues(t, "5.92", req.Values.Get("v"))
+	assert.EqualValues(t, "5.95", req.Values.Get("v"))
 	assert.EqualValues(t, "1", req.Values.Get("https"))
 	assert.EqualValues(t, "123", req.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequest.RequestURI)

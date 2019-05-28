@@ -91,7 +91,7 @@ func (c *config) AuthCodeURL(state string, opts map[string]string) string {
 func (c *config) DefaultOptions() map[string]string {
 	return map[string]string{
 		"display": "page",
-		"v":       "5.92",
+		"v":       "5.95",
 		//ToDo you have "v" parameter defined in 2 places. Here and in requestSender.Fix it.
 	}
 }

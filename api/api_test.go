@@ -104,7 +104,7 @@ func TestApi_SendRequest_AndRetry(t *testing.T) {
 	assert.EqualValues(t, "ABC123", secondRequestParams.Get("captcha_key"))
 	assert.EqualValues(t, 2, requestCounter)
 	assert.EqualValues(t, "valuetest", req.Values.Get("testparam"))
-	assert.EqualValues(t, "5.92", req.Values.Get("v"))
+	assert.EqualValues(t, "5.95", req.Values.Get("v"))
 	assert.EqualValues(t, "1", req.Values.Get("https"))
 	assert.EqualValues(t, "123", req.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequestFirst.RequestURI)

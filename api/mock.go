@@ -11,6 +11,9 @@ import (
 
 //Just regular Api, but sends requests to mock http server instead of real one.
 // Also records last request and can respond with response you want.
+// You can set different responses for different methods.
+// Keeps track of number of requests received per method.
+// For usage see tests
 type MockApi struct {
 	Api            *Api
 	Server         *httptest.Server

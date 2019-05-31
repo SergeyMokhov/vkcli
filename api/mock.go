@@ -12,15 +12,20 @@ import (
 //Just regular Api, but sends requests to mock http server instead of real one.
 // Also records last request and can respond with response you want.
 type MockApi struct {
-	Api         *Api
-	Server      *httptest.Server
-	LastRequest *http.Request
-	Response    map[string]string
+	Api            *Api
+	Server         *httptest.Server
+	LastRequest    *http.Request
+	Response       map[string]string
+	requestCounter map[string]int
 }
 
 func (m *MockApi) SetResponse(requestUrlPath string, response string) *MockApi {
 	m.Response["/"+requestUrlPath] = response
 	return m
+}
+
+func (m *MockApi) NumberOfRequestsReceived(requestUrlPath string) int {
+	return m.requestCounter["/"+requestUrlPath]
 }
 
 func (m *MockApi) Shutdown() {
@@ -31,11 +36,15 @@ func (m *MockApi) Shutdown() {
 func NewMockApi() *MockApi {
 	mock := &MockApi{}
 	mock.Response = make(map[string]string)
+	mock.requestCounter = make(map[string]int)
+
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mock.requestCounter[r.RequestURI] = mock.requestCounter[r.RequestURI] + 1
 		mock.LastRequest = r
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "%s", mock.Response[r.RequestURI])
 	}))
+
 	mock.Server = server
 	requestSender := NewInstance(&oauth2.Token{AccessToken: "000"})
 	baseUrl, _ := url.Parse(server.URL)

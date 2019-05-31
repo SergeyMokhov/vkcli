@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -51,4 +52,25 @@ func TestMockApi_SupportsDifferentResponsesForDifferentMethods(t *testing.T) {
 
 	require.Equal(t, expectedResponseA, string(responseA))
 	require.Equal(t, expectedResponseB, string(responseB))
+}
+
+func TestMockApi_NumberOfRequestsReceivedIncreasesIndependentluyForEachMethod(t *testing.T) {
+	methodA := "ma"
+	methodB := "mb"
+
+	mock := NewMockApi().
+		SetResponse(methodA, "").
+		SetResponse(methodB, "")
+	defer mock.Shutdown()
+	reqA := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodA, &fakeVkResponse{})}
+	reqB := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodB, &fakeVkResponse{})}
+
+	sendRequest(mock.Api, &reqB)
+	sendRequest(mock.Api, &reqA)
+	sendRequest(mock.Api, &reqB)
+	sendRequest(mock.Api, &reqB)
+
+	assert.Equal(t, 0, mock.NumberOfRequestsReceived("zero"))
+	assert.Equal(t, 1, mock.NumberOfRequestsReceived(methodA))
+	assert.Equal(t, 3, mock.NumberOfRequestsReceived(methodB))
 }

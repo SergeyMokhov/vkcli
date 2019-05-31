@@ -20,7 +20,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestFriendsAddRequest_Perform(t *testing.T) {
-	mock := api.NewMockApi(friendsAddresponse)
+	mock := api.NewMockApi().SetResponse("friends.add", friendsAddresponse)
 	defer mock.Shutdown()
 
 	response, err := Add(505, "tst", AsFriend).Perform(mock.Api)
@@ -30,7 +30,7 @@ func TestFriendsAddRequest_Perform(t *testing.T) {
 }
 
 func TestFriendsAddRequest_PerformSetsUri(t *testing.T) {
-	mock := api.NewMockApi(friendsAddresponse)
+	mock := api.NewMockApi().SetResponse("friends.add", friendsAddresponse)
 	defer mock.Shutdown()
 
 	resp, err := Add(1, "sfsdf", AsFriend).Perform(mock.Api)

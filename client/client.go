@@ -9,14 +9,14 @@ import (
 )
 
 type VkClient interface {
-	RequestSender() api.VkRequestSender
+	RequestSender() api.RequestSendRetrier
 }
 
 type Vk struct {
-	api api.VkRequestSender
+	api api.RequestSendRetrier
 }
 
-func (vk *Vk) RequestSender() api.VkRequestSender {
+func (vk *Vk) RequestSender() api.RequestSendRetrier {
 	return vk.api
 }
 

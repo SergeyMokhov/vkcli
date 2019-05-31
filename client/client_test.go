@@ -5,11 +5,43 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/g00g/vk-cli/api"
-	"gitlab.com/g00g/vk-cli/api/obj"
 	"gitlab.com/g00g/vk-cli/api/requests/friends"
 	"golang.org/x/oauth2"
 	"testing"
 )
+
+var deletedUserJson = `{
+  "response": {
+    "count": 3,
+    "items": [
+      {
+        "id": 1,
+        "first_name": "Potato",
+        "last_name": "Salad",
+        "is_closed": false,
+        "can_access_closed": true,
+        "nickname": "",
+        "bdate": "20.2.1985",
+        "online": 0
+      },
+      {
+        "id": 2,
+        "first_name": "DELETED",
+        "last_name": "",
+        "deactivated": "deleted",
+        "online": 0
+      },
+      {
+        "id": 3,
+        "first_name": "Guacamole",
+        "last_name": "Spread",
+        "deactivated": "banned",
+        "online": 0
+      }
+    ]
+  }
+}
+`
 
 func TestNewVk(t *testing.T) {
 	vk := NewVk(&oauth2.Token{})
@@ -38,13 +70,13 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 		})
 	defer monkey.UnpatchAll()
 
-	mockApi := api.NewMockApi("")
+	mockApi := api.NewMockApi()
 	vk := newVkFromMockApi(mockApi)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			captured = ""
-			mockApi.SetResponse(tc.vkServerResponse)
+			mockApi.SetResponse("friends.delete", tc.vkServerResponse)
 
 			vk.DeleteFriend(999)
 
@@ -53,21 +85,11 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 	}
 }
 
-func Test_RemoveDeletedFriendsShouldCallDeleteOnlyForUsersWithDeletedFlag(t *testing.T) {
-	monkey.Patch(friends.Get().Perform,
-		func(api api.VkRequestSender) (response *friends.GetResponse, err error) {
-			return &friends.GetResponse{
-				Response: friends.GetResponseValue{
-					Items: []obj.User{
-						{Id: 0},
-						{Id: 1, Deactivated: obj.UserDeleted},
-						{Id: 2}},
-				},
-			}, nil
-		})
-	//TODO finish test
-	//Test by feeding in json?
-	//Create mock inside of friends package?
-	//Redesign using some sort of pattern?
-	//Export GetResponseValue struct?
-}
+//func Test_RemoveDeletedFriendsShouldCallDeleteOnlyForUsersWithDeletedFlag(t *testing.T) {
+//
+//	//TODO finish test
+//	//Test by feeding in json?++
+//	//Create mock inside of friends package?
+//	//Redesign using some sort of pattern?
+//	//Export GetResponseValue struct?
+//}

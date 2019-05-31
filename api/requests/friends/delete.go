@@ -42,7 +42,7 @@ func Delete(id int) *deleteRequest {
 }
 
 // Returns error only if sending request or type conversion fails
-func (dr *deleteRequest) Perform(api api.VkRequestSender) (response *DeleteResponse, err error) {
+func (dr *deleteRequest) Perform(api api.RequestSendRetrier) (response *DeleteResponse, err error) {
 	err = api.SendVkRequestAndRetryOnCaptcha(dr)
 
 	resp, ok := dr.ResponseStructPointer.(*DeleteResponse)

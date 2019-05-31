@@ -13,7 +13,7 @@ func TestDeleteShouldSetUserId(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformSetsRequestUri(t *testing.T) {
-	mock := api.NewMockApi(SuccessFriendDeleted)
+	mock := api.NewMockApi().SetResponse("friends.delete", SuccessFriendDeleted)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)
@@ -24,7 +24,7 @@ func TestFriendsDelete_PerformSetsRequestUri(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformInRequestDeleted(t *testing.T) {
-	mock := api.NewMockApi(SuccessInRequestDeclined)
+	mock := api.NewMockApi().SetResponse("friends.delete", SuccessInRequestDeclined)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)
@@ -34,7 +34,7 @@ func TestFriendsDelete_PerformInRequestDeleted(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformOutRequestDeleted(t *testing.T) {
-	mock := api.NewMockApi(SuccessOutRequestCancelled)
+	mock := api.NewMockApi().SetResponse("friends.delete", SuccessOutRequestCancelled)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)
@@ -44,7 +44,7 @@ func TestFriendsDelete_PerformOutRequestDeleted(t *testing.T) {
 }
 
 func TestFriendsDelete_PerformAccessDenied(t *testing.T) {
-	mock := api.NewMockApi(FriedDeleteFailureAccessDenied)
+	mock := api.NewMockApi().SetResponse("friends.delete", FriedDeleteFailureAccessDenied)
 	defer mock.Shutdown()
 
 	delResponse, err := Delete(1).Perform(mock.Api)

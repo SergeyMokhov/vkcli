@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type VkRequestSender interface {
+type RequestSendRetrier interface {
 	SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error)
 }
 

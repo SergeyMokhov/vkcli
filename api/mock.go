@@ -15,11 +15,12 @@ type MockApi struct {
 	Api         *Api
 	Server      *httptest.Server
 	LastRequest *http.Request
-	Response    *string
+	Response    map[string]string
 }
 
-func (m *MockApi) SetResponse(s string) {
-	m.Response = &s
+func (m *MockApi) SetResponse(requestUrlPath string, response string) *MockApi {
+	m.Response["/"+requestUrlPath] = response
+	return m
 }
 
 func (m *MockApi) Shutdown() {
@@ -27,13 +28,13 @@ func (m *MockApi) Shutdown() {
 }
 
 //Call the shutdown function once you are done with the mock
-func NewMockApi(response string) *MockApi {
+func NewMockApi() *MockApi {
 	mock := &MockApi{}
-	mock.SetResponse(response)
+	mock.Response = make(map[string]string)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mock.LastRequest = r
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "%s", *mock.Response)
+		fmt.Fprintf(w, "%s", mock.Response[r.RequestURI])
 	}))
 	mock.Server = server
 	requestSender := NewInstance(&oauth2.Token{AccessToken: "000"})

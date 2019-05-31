@@ -107,7 +107,7 @@ func TestFriendsGetRequest_SetFields(t *testing.T) {
 }
 
 func TestFriendsGetRequest_Perform(t *testing.T) {
-	mock := api.NewMockApi(fakeFriendsGetResponse)
+	mock := api.NewMockApi().SetResponse("friends.get", fakeFriendsGetResponse)
 	defer mock.Shutdown()
 
 	userlist, err := Get().SetOrder(Name).Perform(mock.Api)
@@ -119,7 +119,7 @@ func TestFriendsGetRequest_Perform(t *testing.T) {
 }
 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
-	mock := api.NewMockApi(errorResponse)
+	mock := api.NewMockApi().SetResponse("friends.get", errorResponse)
 	defer mock.Shutdown()
 
 	userlist, err := Get().SetOrder(Name).Perform(mock.Api)

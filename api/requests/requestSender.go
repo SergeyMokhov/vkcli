@@ -1,15 +1,46 @@
-package api
+package requests
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
+	"golang.org/x/oauth2"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 )
+
+type RequestSendRetrier interface {
+	SendVkRequestAndRetryOnCaptcha(request vkRequest) error
+}
+
+type VkRequestSender struct {
+	client       *http.Client
+	token        *oauth2.Token
+	BaseUrl      *url.URL
+	speedLimiter <-chan bool
+}
+
+func NewVkRequestSender(token *oauth2.Token) *VkRequestSender {
+	defaultSpeedLimit := 3
+	defaultSpeedUnit := time.Second
+
+	apiUrl, err := url.Parse("https://api.vk.com/method/")
+	if err != nil {
+		log.Fatalf("cannot parse VK api URL:%v", err)
+	}
+
+	return &VkRequestSender{
+		client:       &http.Client{},
+		token:        token,
+		BaseUrl:      apiUrl,
+		speedLimiter: NewSpeedLimiter(defaultSpeedLimit, defaultSpeedUnit).Channel(),
+	}
+}
 
 func addDefaultParams(request vkRequest, accessToken string) {
 	defaultParams := request.UrlValues()
@@ -41,7 +72,7 @@ func promptForCaptcha(vkErr *vkErrors.Error) (answer string) {
 	return answer
 }
 
-func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
+func sendRequest(rb *VkRequestSender, request vkRequest) (body []byte, err error) {
 	addDefaultParams(request, rb.token.AccessToken)
 	method, errUrl := rb.BaseUrl.Parse(request.Method())
 	if errUrl != nil {
@@ -74,10 +105,28 @@ func sendRequest(rb *Api, request vkRequest) (body []byte, err error) {
 	return body, nil
 }
 
-func unmarshal(what []byte, to interface{}) (err error) {
-	err = json.Unmarshal(what, to)
+func (rb *VkRequestSender) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
+	response, err := sendRequest(rb, request)
 	if err != nil {
-		err = fmt.Errorf("error parsing json to struct:%v", err)
+		return err
 	}
-	return err
+	responseType := request.ResponseType()
+	err = Unmarshal(response, responseType)
+	if err != nil {
+		return err
+	}
+	vkErr := responseType.GetError()
+	if vkErr != nil {
+		//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
+		if vkErr.ErrorCode == vkErrors.CaptchaRequired {
+			captcha := promptForCaptcha(vkErr)
+			addSolvedCaptcha(request, vkErr, captcha)
+			response, err := sendRequest(rb, request)
+			if err != nil {
+				return err
+			}
+			return Unmarshal(response, responseType)
+		}
+	}
+	return nil
 }

@@ -1,4 +1,4 @@
-package api
+package requests
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -8,12 +8,12 @@ import (
 
 var fakeRequestMethod = "testMethod"
 
-func TestNewMockApi_ShouldUseKeepLatestRequest(t *testing.T) {
+func TestNewMockRequestSender_ShouldUseKeepLatestRequest(t *testing.T) {
 	expectedResponse := `{"error":{"error_code":15,"error_msg":"Access denied: No friend or friend request found."}}`
-	mock := NewMockApi().SetResponse(fakeRequestMethod, expectedResponse)
+	mock := NewMockRequestSender().SetResponse(fakeRequestMethod, expectedResponse)
 	defer mock.Shutdown()
-	req := fakeVkRequest{VkRequestBase: NewVkRequestBase(fakeRequestMethod, &fakeVkResponse{})}
-	response, err := sendRequest(mock.Api, &req)
+	req := FakeVkRequest{VkRequestBase: NewVkRequestBase(fakeRequestMethod, &FakeVkResponse{})}
+	response, err := sendRequest(mock.VkRequestSender, &req)
 
 	require.Nil(t, err)
 	require.Equal(t, "/testMethod", mock.LastRequest.RequestURI)
@@ -23,12 +23,12 @@ func TestNewMockApi_ShouldUseKeepLatestRequest(t *testing.T) {
 func TestMockApi_SetResponseCanBeOverriden(t *testing.T) {
 	expectedResponse := `{"error":{"error_code":15,"error_msg":"Access denied: No friend or friend request found."}}`
 
-	mock := NewMockApi().SetResponse(fakeRequestMethod, "Some Random String")
+	mock := NewMockRequestSender().SetResponse(fakeRequestMethod, "Some Random String")
 	defer mock.Shutdown()
-	req := fakeVkRequest{VkRequestBase: NewVkRequestBase(fakeRequestMethod, &fakeVkResponse{})}
+	req := FakeVkRequest{VkRequestBase: NewVkRequestBase(fakeRequestMethod, &FakeVkResponse{})}
 
 	mock.SetResponse(fakeRequestMethod, expectedResponse)
-	response, err := sendRequest(mock.Api, &req)
+	response, err := sendRequest(mock.VkRequestSender, &req)
 
 	require.Nil(t, err)
 	require.Equal(t, expectedResponse, string(response))
@@ -40,15 +40,15 @@ func TestMockApi_SupportsDifferentResponsesForDifferentMethods(t *testing.T) {
 	expectedResponseB := `B`
 	methodB := "mb"
 
-	mock := NewMockApi().
+	mock := NewMockRequestSender().
 		SetResponse(methodA, expectedResponseA).
 		SetResponse(methodB, expectedResponseB)
 	defer mock.Shutdown()
-	reqA := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodA, &fakeVkResponse{})}
-	reqB := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodB, &fakeVkResponse{})}
+	reqA := FakeVkRequest{VkRequestBase: NewVkRequestBase(methodA, &FakeVkResponse{})}
+	reqB := FakeVkRequest{VkRequestBase: NewVkRequestBase(methodB, &FakeVkResponse{})}
 
-	responseA, _ := sendRequest(mock.Api, &reqA)
-	responseB, _ := sendRequest(mock.Api, &reqB)
+	responseA, _ := sendRequest(mock.VkRequestSender, &reqA)
+	responseB, _ := sendRequest(mock.VkRequestSender, &reqB)
 
 	require.Equal(t, expectedResponseA, string(responseA))
 	require.Equal(t, expectedResponseB, string(responseB))
@@ -58,17 +58,17 @@ func TestMockApi_NumberOfRequestsReceivedIncreasesIndependentluyForEachMethod(t 
 	methodA := "ma"
 	methodB := "mb"
 
-	mock := NewMockApi().
+	mock := NewMockRequestSender().
 		SetResponse(methodA, "").
 		SetResponse(methodB, "")
 	defer mock.Shutdown()
-	reqA := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodA, &fakeVkResponse{})}
-	reqB := fakeVkRequest{VkRequestBase: NewVkRequestBase(methodB, &fakeVkResponse{})}
+	reqA := FakeVkRequest{VkRequestBase: NewVkRequestBase(methodA, &FakeVkResponse{})}
+	reqB := FakeVkRequest{VkRequestBase: NewVkRequestBase(methodB, &FakeVkResponse{})}
 
-	sendRequest(mock.Api, &reqB)
-	sendRequest(mock.Api, &reqA)
-	sendRequest(mock.Api, &reqB)
-	sendRequest(mock.Api, &reqB)
+	sendRequest(mock.VkRequestSender, &reqB)
+	sendRequest(mock.VkRequestSender, &reqA)
+	sendRequest(mock.VkRequestSender, &reqB)
+	sendRequest(mock.VkRequestSender, &reqB)
 
 	assert.Equal(t, 0, mock.NumberOfRequestsReceived("zero"))
 	assert.Equal(t, 1, mock.NumberOfRequestsReceived(methodA))

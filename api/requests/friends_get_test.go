@@ -1,9 +1,8 @@
-package friends
+package requests
 
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/g00g/vk-cli/api"
 	"testing"
 )
 
@@ -101,30 +100,39 @@ func TestFriendsGetRequest_SetOffset(t *testing.T) {
 }
 
 func TestFriendsGetRequest_SetFields(t *testing.T) {
-	fgr := Get().SetFields(Nickname, Sex, Domain)
+	fgr := Get().SetFields([]Fields{Nickname, Sex, Domain})
 	actual := fgr.UrlValues().Get("fields")
 	require.EqualValues(t, "nickname,sex,domain", actual)
 }
 
-func TestFriendsGetRequest_Perform(t *testing.T) {
-	mock := api.NewMockApi().SetResponse("friends.get", fakeFriendsGetResponse)
+func TestFriendsGetRequest_CouldBeSentAndResponseIsProperlyParsed(t *testing.T) {
+	mock := NewMockRequestSender().SetResponse("friends.get", fakeFriendsGetResponse)
 	defer mock.Shutdown()
-
-	userlist, err := Get().SetOrder(Name).Perform(mock.Api)
+	request := Get().SetOrder(Name)
+	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
+
+	response, ok := request.ResponseStructPointer.(*GetResponse)
+
+	require.True(t, ok)
 	assert.EqualValues(t, "/friends.get", mock.LastRequest.RequestURI)
-	assert.EqualValues(t, 1, userlist.Response.Count)
-	require.EqualValues(t, 1, len(userlist.Response.Items))
-	require.EqualValues(t, 12345, userlist.Response.Items[0].Id)
+	assert.EqualValues(t, 1, response.Response.Count)
+	require.EqualValues(t, 1, len(response.Response.Items))
+	require.EqualValues(t, 12345, response.Response.Items[0].Id)
 }
 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
-	mock := api.NewMockApi().SetResponse("friends.get", errorResponse)
+	mock := NewMockRequestSender().SetResponse("friends.get", errorResponse)
 	defer mock.Shutdown()
-
-	userlist, err := Get().SetOrder(Name).Perform(mock.Api)
+	request := Get().SetOrder(Name)
+	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
-	require.EqualValues(t, 0, len(userlist.Response.Items))
-	require.EqualValues(t, 5, userlist.Error.ErrorCode)
-	require.EqualValues(t, "User authorization failed: no access_token passed.", userlist.Error.ErrorMsg)
+
+	response, ok := request.ResponseStructPointer.(*GetResponse)
+
+	require.True(t, ok)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, len(response.Response.Items))
+	require.EqualValues(t, 5, response.Error.ErrorCode)
+	require.EqualValues(t, "User authorization failed: no access_token passed.", response.Error.ErrorMsg)
 }

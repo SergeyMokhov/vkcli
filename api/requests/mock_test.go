@@ -1,8 +1,14 @@
 package requests
 
 import (
+	"bou.ke/monkey"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -73,4 +79,32 @@ func TestMockApi_NumberOfRequestsReceivedIncreasesIndependentluyForEachMethod(t 
 	assert.Equal(t, 0, mock.NumberOfRequestsReceived("zero"))
 	assert.Equal(t, 1, mock.NumberOfRequestsReceived(methodA))
 	assert.Equal(t, 3, mock.NumberOfRequestsReceived(methodB))
+}
+
+func TestMockRequestSender_SetTestServerShouldOverrideDefaultServer(t *testing.T) {
+	mock := NewMockRequestSender()
+	testMethod := "testMethod2"
+	defer mock.Shutdown()
+	overriddenResponse := captchaNeededResponse
+	actualRequest := &http.Request{}
+	fakeRequest := FakeVkRequest{&VkRequestBase{
+		Values:                url.Values{"testparam": []string{"valuetest"}},
+		MethodStr:             testMethod,
+		ResponseStructPointer: &FakeVkResponse{}}}
+	newTestServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, overriddenResponse)
+		actualRequest = r
+	}))
+	mock.SetTestServer(newTestServer)
+	requestSender := mock.VkRequestSender
+
+	patch := monkey.Patch(promptForCaptcha, func(vkErr *vkErrors.Error) (answer string) {
+		return "ABC123"
+	})
+	defer patch.Unpatch()
+
+	requestSender.SendVkRequestAndRetryOnCaptcha(&fakeRequest)
+
+	assert.EqualValues(t, "/"+testMethod, actualRequest.RequestURI)
 }

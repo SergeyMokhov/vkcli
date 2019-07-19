@@ -26,6 +26,16 @@ func (m *MockRequestSender) SetResponse(requestUrlPath string, response string) 
 	return m
 }
 
+//As a sideeffect overrides AccessToken to 000 and makes SetResponse do nothing. Also, NumberOfRequestsReceived will
+// always be null since these functions rely on default implementation.
+func (m *MockRequestSender) SetTestServer(server *httptest.Server) {
+	m.Server = server
+	requestSender := NewVkRequestSender(&oauth2.Token{AccessToken: "000"})
+	baseUrl, _ := url.Parse(server.URL)
+	requestSender.BaseUrl = baseUrl
+	m.VkRequestSender = requestSender
+}
+
 func (m *MockRequestSender) NumberOfRequestsReceived(requestUrlPath string) int {
 	return m.requestCounter["/"+requestUrlPath]
 }
@@ -34,7 +44,7 @@ func (m *MockRequestSender) Shutdown() {
 	m.Server.Close()
 }
 
-//Call the shutdown function once you are done with the mock
+//Call Shutdown() function once you are done with the mock
 func NewMockRequestSender() *MockRequestSender {
 	mock := &MockRequestSender{}
 	mock.Response = make(map[string]string)
@@ -46,11 +56,6 @@ func NewMockRequestSender() *MockRequestSender {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "%s", mock.Response[r.RequestURI])
 	}))
-
-	mock.Server = server
-	requestSender := NewVkRequestSender(&oauth2.Token{AccessToken: "000"})
-	baseUrl, _ := url.Parse(server.URL)
-	requestSender.BaseUrl = baseUrl
-	mock.VkRequestSender = requestSender
+	mock.SetTestServer(server)
 	return mock
 }

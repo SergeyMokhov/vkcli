@@ -4,8 +4,7 @@ import (
 	"bou.ke/monkey"
 	"fmt"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/g00g/vk-cli/api"
-	"gitlab.com/g00g/vk-cli/api/requests/friends"
+	"gitlab.com/g00g/vk-cli/api/requests"
 	"golang.org/x/oauth2"
 	"testing"
 )
@@ -55,11 +54,11 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 		vkServerResponse string
 		expectedOutput   string
 	}{
-		{"Friend deleted from list", friends.SuccessFriendDeleted, "successfully deleted form friend list"},
-		{"Declined incoming request", friends.SuccessInRequestDeclined, "Successfully declined friend request"},
-		{"Cancelled outgoing request", friends.SuccessOutRequestCancelled, "Successfully cancelled friend request"},
+		{"Friend deleted from list", requests.SuccessFriendDeleted, "successfully deleted form friend list"},
+		{"Declined incoming request", requests.SuccessInRequestDeclined, "Successfully declined friend request"},
+		{"Cancelled outgoing request", requests.SuccessOutRequestCancelled, "Successfully cancelled friend request"},
 		//{"Deleted friend suggestion", friends.} Was not able to find response example
-		{"Access Denied", friends.FriedDeleteFailureAccessDenied, "Error removing/declining request"},
+		{"Access Denied", requests.FriedDeleteFailureAccessDenied, "Error removing/declining request"},
 	}
 
 	var captured string
@@ -70,7 +69,7 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 		})
 	defer monkey.UnpatchAll()
 
-	mockApi := api.NewMockApi()
+	mockApi := requests.NewMockRequestSender()
 	vk := newVkFromMockApi(mockApi)
 
 	for _, tc := range testCases {

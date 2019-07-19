@@ -1,64 +1,41 @@
 package api
 
 import (
-	"gitlab.com/g00g/vk-cli/api/obj/vkErrors"
+	"fmt"
+	"gitlab.com/g00g/vk-cli/api/obj"
+	"gitlab.com/g00g/vk-cli/api/requests"
 	"golang.org/x/oauth2"
-	"log"
-	"net/http"
-	"net/url"
-	"time"
 )
 
-type RequestSendRetrier interface {
-	SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error)
-}
-
+//TODO Add notes on how to use. Mention that you supposed to use single instance, otherwise you'll get banned by VK for
+// sending too many requests. And  that you can use more than one API if they use different tokens.
 type Api struct {
-	client       *http.Client
-	token        *oauth2.Token
-	BaseUrl      *url.URL
-	speedLimiter <-chan bool
+	requestSender *requests.VkRequestSender
 }
 
-func NewInstance(token *oauth2.Token) *Api {
-	defaultSpeedLimit := 3
-	defaultSpeedUnit := time.Second
-
-	apiUrl, err := url.Parse("https://api.vk.com/method/")
-	if err != nil {
-		log.Fatalf("cannot parse VK api URL:%v", err)
-	}
-
+func NewApi(token *oauth2.Token) *Api {
 	return &Api{
-		client:       &http.Client{},
-		token:        token,
-		BaseUrl:      apiUrl,
-		speedLimiter: NewSpeedLimiter(defaultSpeedLimit, defaultSpeedUnit).Channel(),
+		requestSender: requests.NewVkRequestSender(token),
 	}
 }
 
-func (rb *Api) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
-	response, err := sendRequest(rb, request)
+func (rd *Api) GetAllFriends(userFields ...requests.Fields) (users []obj.User, err error) {
+	request := requests.Get().SetFields(userFields)
+
+	err = rd.requestSender.SendVkRequestAndRetryOnCaptcha(request)
+
 	if err != nil {
-		return err
+		return
 	}
-	responseType := request.ResponseType()
-	err = unmarshal(response, responseType)
-	if err != nil {
-		return err
+
+	response, ok := request.ResponseStructPointer.(*requests.GetResponse)
+	if !ok {
+		return
 	}
-	vkErr := responseType.GetError()
-	if vkErr != nil {
-		//TODO make amount of retries configurable. User might enter incorrect captcha multiple times
-		if vkErr.ErrorCode == vkErrors.CaptchaRequired {
-			captcha := promptForCaptcha(vkErr)
-			addSolvedCaptcha(request, vkErr, captcha)
-			response, err := sendRequest(rb, request)
-			if err != nil {
-				return err
-			}
-			return unmarshal(response, responseType)
-		}
+
+	if response.Error != nil {
+		err = fmt.Errorf("Vk.com returned an error: %v", response.Error)
 	}
-	return nil
+
+	return response.Response.Items, nil
 }

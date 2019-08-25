@@ -1,9 +1,11 @@
 package client
 
 import (
+	"fmt"
 	"gitlab.com/g00g/vk-cli/api"
 	"gitlab.com/g00g/vk-cli/api/requests"
 	"golang.org/x/oauth2"
+	"strconv"
 )
 
 //type VkClient interface {
@@ -11,7 +13,7 @@ import (
 //}
 
 type Vk struct {
-	api api.RequestSendRetrier
+	api *api.Api
 }
 
 //func (vk *Vk) RequestSender() api.RequestSendRetryer {
@@ -22,24 +24,24 @@ func NewVk(token *oauth2.Token) *Vk {
 	return &Vk{api: api.NewApi(token)}
 }
 
-func newVkFromMockApi(mock *requests.MockRequestSender) *Vk {
-	return &Vk{api: mock.Api}
-}
+//func newVkFromMockApi(mock *requests.MockRequestSender) *Vk {
+//	return &Vk{api: mock.Api}
+//}
 
 func (vk *Vk) ListFriends() {
-	//format := "%6s%20s%20s%20s%20s%13s%7s%12s\n"
-	//
-	//allFriends, err := vk.api.GetAllFriends(friends.Online, friends.BDate, friends.Nickname)
-	//if err != nil {
-	//	fmt.Printf("Failed to list friends:%v", err)
-	//	return
-	//}
-	//
-	//fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online", "Deactivated")
-	//for i, val := range allFriends {
-	//	fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate,
-	//		strconv.Itoa(val.Online), val.Deactivated)
-	//}
+	format := "%6s%20s%20s%20s%20s%13s%7s%12s\n"
+
+	allFriends, err := vk.api.GetAllFriends(requests.Online, requests.BDate, requests.Nickname)
+	if err != nil {
+		fmt.Printf("Failed to list friends:%v", err)
+		return
+	}
+
+	fmt.Printf(format, "#", "ID", "First name", "Last name", "Nickname", "Birthday", "Online", "Deactivated")
+	for i, val := range allFriends {
+		fmt.Printf(format, strconv.Itoa(i), strconv.Itoa(val.Id), val.FirstName, val.LastName, val.Nickname, val.BDate,
+			strconv.Itoa(val.Online), val.Deactivated)
+	}
 }
 
 func (vk *Vk) AddFriend(id int) {

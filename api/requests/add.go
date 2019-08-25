@@ -39,7 +39,7 @@ package requests
 //}
 //
 //// Returns error only if sending request or type conversion fails
-//func (fa *addRequest) Perform(api api.RequestSendRetrier) (response *AddResponse, err error) {
+//func (fa *addRequest) Perform(api api.RequestSendRetryer) (response *AddResponse, err error) {
 //	err = api.SendVkRequestAndRetryOnCaptcha(fa)
 //
 //	resp, ok := fa.ResponseStructPointer.(*AddResponse)

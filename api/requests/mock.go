@@ -59,3 +59,7 @@ func NewMockRequestSender() *MockRequestSender {
 	mock.SetTestServer(server)
 	return mock
 }
+
+func (mrs *MockRequestSender) SendVkRequestAndRetryOnCaptcha(request vkRequest) (err error) {
+	return mrs.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
+}

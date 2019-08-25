@@ -10,7 +10,7 @@ import (
 //TODO Add notes on how to use. Mention that you supposed to use single instance, otherwise you'll get banned by VK for
 // sending too many requests. And  that you can use more than one API if they use different tokens.
 type Api struct {
-	requestSender *requests.VkRequestSender
+	requestSender requests.RequestSendRetryer
 }
 
 func NewApi(token *oauth2.Token) *Api {

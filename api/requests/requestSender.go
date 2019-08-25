@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-type RequestSendRetrier interface {
+type RequestSendRetryer interface {
 	SendVkRequestAndRetryOnCaptcha(request vkRequest) error
 }
 

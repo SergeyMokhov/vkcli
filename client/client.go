@@ -7,14 +7,14 @@ import (
 )
 
 //type VkClient interface {
-//	RequestSender() api.RequestSendRetrier
+//	RequestSender() api.RequestSendRetryer
 //}
 
 type Vk struct {
 	api api.RequestSendRetrier
 }
 
-//func (vk *Vk) RequestSender() api.RequestSendRetrier {
+//func (vk *Vk) RequestSender() api.RequestSendRetryer {
 //	return vk.api
 //}
 

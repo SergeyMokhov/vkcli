@@ -19,8 +19,8 @@ func NewApi(token *oauth2.Token) *Api {
 	}
 }
 
-func (rd *Api) GetAllFriends(userFields ...requests.Fields) (users []obj.User, err error) {
-	request := requests.Get().SetFields(userFields)
+func (rd *Api) GetAllFriends(userFields ...requests.FriendsGetFields) (users []obj.User, err error) {
+	request := requests.FriendsGet().SetFields(userFields)
 
 	err = rd.requestSender.SendVkRequestAndRetryOnCaptcha(request)
 
@@ -28,7 +28,7 @@ func (rd *Api) GetAllFriends(userFields ...requests.Fields) (users []obj.User, e
 		return
 	}
 
-	response, ok := request.ResponseStructPointer.(*requests.GetResponse)
+	response, ok := request.ResponseStructPointer.(*requests.FriendsGetResponse)
 	if !ok {
 		return
 	}

@@ -22,7 +22,7 @@ func TestNewMockRequestSender_ShouldUseKeepLatestRequest(t *testing.T) {
 	response, err := sendRequest(mock.VkRequestSender, &req)
 
 	require.Nil(t, err)
-	require.Equal(t, "/testMethod", mock.LastRequest.RequestURI)
+	require.Equal(t, "/"+fakeRequestMethod, mock.LastRequest.RequestURI)
 	require.Equal(t, expectedResponse, string(response))
 }
 
@@ -60,7 +60,7 @@ func TestMockApi_SupportsDifferentResponsesForDifferentMethods(t *testing.T) {
 	require.Equal(t, expectedResponseB, string(responseB))
 }
 
-func TestMockApi_NumberOfRequestsReceivedIncreasesIndependentluyForEachMethod(t *testing.T) {
+func TestMockApi_NumberOfRequestsReceivedIncreasesIndependentlyForEachMethod(t *testing.T) {
 	methodA := "ma"
 	methodB := "mb"
 

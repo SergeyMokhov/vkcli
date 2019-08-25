@@ -58,49 +58,49 @@ const (
 )
 
 func TestFriendsGetRequest_Method(t *testing.T) {
-	fgr := Get()
+	fgr := FriendsGet()
 	actual := fgr.Method()
 	require.EqualValues(t, "friends.get", actual)
 }
 
 func TestFriendsGetRequest_UrlValues(t *testing.T) {
-	fgr := Get()
+	fgr := FriendsGet()
 	actual := fgr.UrlValues()
 	require.NotNil(t, actual)
 }
 
 func TestFriendsGetRequest_SetUserId(t *testing.T) {
-	fgr := Get().SetUserId(9000)
+	fgr := FriendsGet().SetUserId(9000)
 	actual := fgr.UrlValues().Get("user_id")
 	require.EqualValues(t, "9000", actual)
 }
 
 func TestFriendsGetRequest_SetOrder(t *testing.T) {
-	fgr := Get().SetOrder(Name)
+	fgr := FriendsGet().SetOrder(Name)
 	actual := fgr.UrlValues().Get("order")
 	require.EqualValues(t, "name", actual)
 }
 
 func TestFriendsGetRequest_SetListId(t *testing.T) {
-	fgr := Get().SetListId(7)
+	fgr := FriendsGet().SetListId(7)
 	actual := fgr.UrlValues().Get("list_id")
 	require.EqualValues(t, "7", actual)
 }
 
 func TestFriendsGetRequest_SetCount(t *testing.T) {
-	fgr := Get().SetCount(10000)
+	fgr := FriendsGet().SetCount(10000)
 	actual := fgr.UrlValues().Get("count")
 	require.EqualValues(t, "10000", actual)
 }
 
 func TestFriendsGetRequest_SetOffset(t *testing.T) {
-	fgr := Get().SetOffset(4)
+	fgr := FriendsGet().SetOffset(4)
 	actual := fgr.UrlValues().Get("offset")
 	require.EqualValues(t, "4", actual)
 }
 
 func TestFriendsGetRequest_SetFields(t *testing.T) {
-	fgr := Get().SetFields([]Fields{Nickname, Sex, Domain})
+	fgr := FriendsGet().SetFields([]FriendsGetFields{Nickname, Sex, Domain})
 	actual := fgr.UrlValues().Get("fields")
 	require.EqualValues(t, "nickname,sex,domain", actual)
 }
@@ -108,11 +108,11 @@ func TestFriendsGetRequest_SetFields(t *testing.T) {
 func TestFriendsGetRequest_CouldBeSentAndResponseIsProperlyParsed(t *testing.T) {
 	mock := NewMockRequestSender().SetResponse("friends.get", fakeFriendsGetResponse)
 	defer mock.Shutdown()
-	request := Get().SetOrder(Name)
+	request := FriendsGet().SetOrder(Name)
 	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
 
-	response, ok := request.ResponseStructPointer.(*GetResponse)
+	response, ok := request.ResponseStructPointer.(*FriendsGetResponse)
 
 	require.True(t, ok)
 	assert.EqualValues(t, "/friends.get", mock.LastRequest.RequestURI)
@@ -124,11 +124,11 @@ func TestFriendsGetRequest_CouldBeSentAndResponseIsProperlyParsed(t *testing.T) 
 func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
 	mock := NewMockRequestSender().SetResponse("friends.get", errorResponse)
 	defer mock.Shutdown()
-	request := Get().SetOrder(Name)
+	request := FriendsGet().SetOrder(Name)
 	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
 
-	response, ok := request.ResponseStructPointer.(*GetResponse)
+	response, ok := request.ResponseStructPointer.(*FriendsGetResponse)
 
 	require.True(t, ok)
 	require.Nil(t, err)

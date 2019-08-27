@@ -39,3 +39,39 @@ func (rd *Api) GetAllFriends(userFields ...requests.FriendsGetFields) (users []o
 
 	return response.Response.Items, nil
 }
+
+/*userId - ID of the user whose friend request will be approved or to whom a friend request will be sent.
+
+text - Text of the message (up to 500 characters) for the friend request, if any.
+
+follow - true to pass an incoming request to followers list.
+
+Returns one of the following values:
+   1 — friend request sent;
+   2 — friend request from the user approved;
+   4 — request resending.*/
+func (rd *Api) AddFriend(userId int, text string, follow bool) (response int, err error) {
+	addAs := requests.AsFriend
+
+	if follow {
+		addAs = requests.AsFollower
+	}
+
+	request := requests.FriendsAdd(userId, text, addAs)
+	err = rd.requestSender.SendVkRequestAndRetryOnCaptcha(request)
+
+	if err != nil {
+		return
+	}
+
+	resp, ok := request.ResponseStructPointer.(*requests.FriendsAddResponse)
+	if !ok {
+		return
+	}
+
+	if resp.Error != nil {
+		err = fmt.Errorf("Vk.com returned an error: %v", resp.Error)
+	}
+
+	return resp.Response, nil
+}

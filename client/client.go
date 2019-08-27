@@ -45,31 +45,26 @@ func (vk *Vk) ListFriends() {
 }
 
 func (vk *Vk) AddFriend(id int) {
-	//errorAddingFriendFormat := "Error adding friend with Id %v: %v\n"
-	//
-	//resp, err := friends.Add(id, "lol", friends.AsFollower).Perform(vk.RequestSender())
-	//if err != nil {
-	//	fmt.Printf(errorAddingFriendFormat, id, err)
-	//}
-	//
-	//var successStringFormat string
-	//switch {
-	//case resp.Response == 1:
-	//	successStringFormat = "Friend request sent to %v"
-	//case resp.Response == 2:
-	//	successStringFormat = "Friend request from %v has been approved"
-	//case resp.Response == 4:
-	//	successStringFormat = "Request resending"
-	//default:
-	//	successStringFormat = "Unknown response code: " + strconv.Itoa(resp.Response)
-	//}
-	//
-	//switch resp.Error {
-	//case nil:
-	//	fmt.Printf(successStringFormat+"\n", id)
-	//default:
-	//	fmt.Printf(errorAddingFriendFormat, id, resp.Error)
-	//}
+	errorAddingFriendFormat := "Error adding friend with Id %v: %v\n"
+
+	response, err := vk.api.AddFriend(id, "it is me, VK bot.", false)
+	if err != nil {
+		fmt.Printf(errorAddingFriendFormat, id, err)
+	}
+
+	var successStringFormat string
+	switch {
+	case response == 1:
+		successStringFormat = "Friend request sent to %v"
+	case response == 2:
+		successStringFormat = "Friend request from %v has been approved"
+	case response == 4:
+		successStringFormat = "Resending request to %v"
+	default:
+		successStringFormat = "Unknown response code: " + strconv.Itoa(response) + " for friends.add request for userid: %v"
+	}
+
+	fmt.Printf(successStringFormat+"\n", id)
 }
 
 func (vk *Vk) DeleteFriend(id int) {

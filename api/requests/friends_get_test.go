@@ -109,7 +109,7 @@ func TestFriendsGetRequest_CouldBeSentAndResponseIsProperlyParsed(t *testing.T) 
 	mock := NewMockRequestSender().SetResponse("friends.get", fakeFriendsGetResponse)
 	defer mock.Shutdown()
 	request := FriendsGet().SetOrder(Name)
-	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
+	err := mock.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
 
 	response, ok := request.ResponseStructPointer.(*FriendsGetResponse)
@@ -121,11 +121,11 @@ func TestFriendsGetRequest_CouldBeSentAndResponseIsProperlyParsed(t *testing.T) 
 	require.EqualValues(t, 12345, response.Response.Items[0].Id)
 }
 
-func TestFriendsGetRequest_PerformReturnsErrorResponse(t *testing.T) {
+func TestFriendsGetRequest_ReturnsErrorResponse(t *testing.T) {
 	mock := NewMockRequestSender().SetResponse("friends.get", errorResponse)
 	defer mock.Shutdown()
 	request := FriendsGet().SetOrder(Name)
-	err := mock.VkRequestSender.SendVkRequestAndRetryOnCaptcha(request)
+	err := mock.SendVkRequestAndRetryOnCaptcha(request)
 	require.Nil(t, err)
 
 	response, ok := request.ResponseStructPointer.(*FriendsGetResponse)

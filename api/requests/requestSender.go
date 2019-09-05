@@ -48,7 +48,7 @@ func addDefaultParams(request vkRequest, accessToken string) {
 		defaultParams.Add("https", "1")
 	}
 	if len(defaultParams["v"]) == 0 {
-		defaultParams.Add("v", "5.95")
+		defaultParams.Add("v", "5.101")
 	}
 	if len(defaultParams["access_token"]) == 0 {
 		defaultParams.Add("access_token", accessToken)

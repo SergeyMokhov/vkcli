@@ -8,25 +8,17 @@ import (
 	"strconv"
 )
 
-//type VkClient interface {
-//	RequestSender() api.RequestSendRetryer
-//}
-
 type Vk struct {
 	api *api.Api
 }
-
-//func (vk *Vk) RequestSender() api.RequestSendRetryer {
-//	return vk.api
-//}
 
 func NewVk(token *oauth2.Token) *Vk {
 	return &Vk{api: api.NewApi(token)}
 }
 
-//func newVkFromMockApi(mock *requests.MockRequestSender) *Vk {
-//	return &Vk{api: mock.Api}
-//}
+func NewVkFromMock(mock *requests.MockRequestSender) *Vk {
+	return &Vk{api: api.NewApiFromMock(mock)}
+}
 
 func (vk *Vk) ListFriends() {
 	format := "%6s%20s%20s%20s%20s%13s%7s%12s\n"
@@ -67,30 +59,27 @@ func (vk *Vk) AddFriend(id int) {
 	fmt.Printf(successStringFormat+"\n", id)
 }
 
-func (vk *Vk) DeleteFriend(id int) {
-	//resp, err := friends.Delete(id).Perform(vk.RequestSender())
-	//if err != nil {
-	//	fmt.Printf("Error deleting %v from friend list: %v\n", id, err)
-	//}
-	//
-	////Vk uses same api for deleting from friend list and declining friend requests,create method body
-	//// etc. So, what did just happened?
-	//var successStringFormat string
-	//switch {
-	//case resp.Response.FriendDeleted == 1:
-	//	successStringFormat = "%v successfully deleted form friend list"
-	//case resp.Response.InRequestDeleted == 1:
-	//	successStringFormat = "Successfully declined friend request from %v"
-	//case resp.Response.OutRequestDeleted == 1:
-	//	successStringFormat = "Successfully cancelled friend request to %v"
-	//default:
-	//	successStringFormat = "Successfully deleted suggestion of %v"
-	//}
-	//
-	//switch resp.Response.Success {
-	//case 1:
-	//	fmt.Printf(successStringFormat+"\n", id)
-	//default:
-	//	fmt.Printf("Error removing/declining request for %v: %v\n", id, resp.GetError())
-	//}
+func (vk *Vk) DeleteFriend(userId int) {
+	success, fr, in, out, _, err := vk.api.DeleteFriend(userId)
+
+	//Vk uses same api for deleting from friend list and declining friend requests,create method body
+	// etc. So, what did just happened?
+	var successStringFormat string
+	switch {
+	case fr == 1:
+		successStringFormat = "%v successfully deleted form friend list"
+	case in == 1:
+		successStringFormat = "Successfully declined friend request from %v"
+	case out == 1:
+		successStringFormat = "Successfully cancelled friend request to %v"
+	default:
+		successStringFormat = "Successfully deleted suggestion of %v"
+	}
+
+	switch success {
+	case 1:
+		fmt.Printf(successStringFormat+"\n", userId)
+	default:
+		fmt.Printf("Error removing/declining request for %v: %v\n", userId, err.Error())
+	}
 }

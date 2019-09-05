@@ -19,6 +19,12 @@ func NewApi(token *oauth2.Token) *Api {
 	}
 }
 
+func NewApiFromMock(mock *requests.MockRequestSender) *Api {
+	return &Api{
+		requestSender: mock,
+	}
+}
+
 func (rd *Api) GetAllFriends(userFields ...requests.FriendsGetFields) (users []obj.User, err error) {
 	request := requests.FriendsGet().SetFields(userFields)
 
@@ -73,5 +79,30 @@ func (rd *Api) AddFriend(userId int, text string, follow bool) (response int, er
 		err = fmt.Errorf("Vk.com returned an error: %v", resp.Error)
 	}
 
-	return resp.Response, nil
+	return resp.Response, err
+}
+
+func (rd *Api) DeleteFriend(userId int) (success, friendDeleted, inRequestDeleted, OutRequestDeleted, suggestionDeleted int, err error) {
+	request := requests.FriendsDelete(userId)
+	err = rd.requestSender.SendVkRequestAndRetryOnCaptcha(request)
+
+	if err != nil {
+		return
+	}
+
+	resp, ok := request.ResponseStructPointer.(*requests.FriendsDeleteResponse)
+	if !ok {
+		return
+	}
+
+	if resp.Error != nil {
+		err = fmt.Errorf("Vk.com returned an error: %v", resp.Error)
+	}
+	//ToDo make this return enum of "FriendDeleted/InRequestRemoved/OutRequestRemoved
+	return resp.Response.Success,
+		resp.Response.FriendDeleted,
+		resp.Response.InRequestDeleted,
+		resp.Response.OutRequestDeleted,
+		resp.Response.SuggestionDeleted,
+		err
 }

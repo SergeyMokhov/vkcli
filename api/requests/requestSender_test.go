@@ -69,7 +69,7 @@ func TestRequseSender_SendRequest_NoRetry(t *testing.T) {
 	requestSender.SendVkRequestAndRetryOnCaptcha(&req)
 
 	assert.EqualValues(t, "valuetest", req.Values.Get("testparam"))
-	assert.EqualValues(t, "5.101", req.Values.Get("v"))
+	assert.EqualValues(t, "5.103", req.Values.Get("v"))
 	assert.EqualValues(t, "1", req.Values.Get("https"))
 	assert.EqualValues(t, "000", req.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", mock.LastRequest.RequestURI)
@@ -156,7 +156,7 @@ func TestRequestSender_SendRequest_AndRetry_ShouldSendCaptchaWhenRetries(t *test
 	assert.EqualValues(t, "ABC123", secondRequestParams.Get("captcha_key"))
 	assert.EqualValues(t, 2, requestCounter)
 	assert.EqualValues(t, "valuetest", fakeRequest.Values.Get("testparam"))
-	assert.EqualValues(t, "5.101", fakeRequest.Values.Get("v"))
+	assert.EqualValues(t, "5.103", fakeRequest.Values.Get("v"))
 	assert.EqualValues(t, "1", fakeRequest.Values.Get("https"))
 	assert.EqualValues(t, "000", fakeRequest.Values.Get("access_token"))
 	assert.EqualValues(t, "/testMethod", actualRequestFirst.RequestURI)

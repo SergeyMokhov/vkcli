@@ -31,10 +31,10 @@ type friendsDeleteResponse struct {
 	SuggestionDeleted int `json:"suggestion_deleted"`
 }
 
-func FriendsDelete(useriId int) *friendsDeleteRequest {
+func FriendsDelete(userId int) *friendsDeleteRequest {
 	rd := &friendsDeleteRequest{
 		VkRequestBase: NewVkRequestBase("friends.delete", &FriendsDeleteResponse{}),
 	}
-	rd.Values.Add("user_id", strconv.Itoa(useriId))
+	rd.Values.Add("user_id", strconv.Itoa(userId))
 	return rd
 }

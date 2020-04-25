@@ -10,9 +10,16 @@ type User struct {
 	CanAccessClosed bool        `json:"can_access_closed"`
 	Hidden          int         `json:"hidden"`
 	Online          int         `json:"online"`
+	LastSeen        LastSeen    `json:"last_seen"`
 
 	BDate     string `json:"bdate"`
 	HasMobile int    `json:"has_mobile"`
+}
+
+type LastSeen struct {
+	//Unix Time
+	Time     int64 `json:"time"`
+	Platform int   `json:"platform"`
 }
 
 type deactivated string

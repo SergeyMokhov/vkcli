@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gitlab.com/g00g/vk-cli/api/requests"
 	"golang.org/x/oauth2"
+	"reflect"
 	"testing"
 )
 
@@ -48,7 +49,7 @@ func TestNewVk(t *testing.T) {
 	require.NotNil(t, vk.api)
 }
 
-func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
+func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfulDeletion(t *testing.T) {
 	testCases := []struct {
 		name             string
 		vkServerResponse string
@@ -84,11 +85,20 @@ func TestVk_DeleteFriend_ShouldPrintLineOnSuccessfullDeletion(t *testing.T) {
 	}
 }
 
-//func Test_RemoveDeletedFriendsShouldCallDeleteOnlyForUsersWithDeletedFlag(t *testing.T) {
-//
-//	//TODO finish this test and fix all others. Just make the function accept array of users.
-//	//Test by feeding in json?++
-//	//Create mock inside of friends package?
-//	//Redesign using some sort of pattern?
-//	//Export GetResponseValue struct?
-//}
+func Test_RemoveDeletedFriends_ShouldCallDeleteOnlyForUsersWithDeletedFlag(t *testing.T) {
+	deleteFriendActualCallCounter := 0
+	var deletedFriendId int
+	mock := requests.NewMockRequestSender().SetResponse("friends.get", deletedUserJson)
+	vk := NewVkFromMock(mock)
+	monkey.PatchInstanceMethod(reflect.TypeOf(vk), "DeleteFriend",
+		func(vk *Vk, id int) {
+			deleteFriendActualCallCounter++
+			deletedFriendId = id
+		})
+	defer monkey.UnpatchAll()
+
+	vk.RemoveDeletedFriends()
+
+	require.Equal(t, 1, deleteFriendActualCallCounter)
+	require.Equal(t, 2, deletedFriendId)
+}

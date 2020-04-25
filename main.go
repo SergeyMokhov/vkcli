@@ -27,7 +27,12 @@ func Start() {
 	}
 
 	vk := client.NewVk(token)
-	vk.ListFriends()
+	//vk.ListFriends()
+	vk.RemoveDeletedFriends()
+	//vk.AddFriend(155633421)
+	//vk.AddFriend(28421522)
+	//vk.DeleteFriend(2916112)
+	//vk.DeleteFriend(28421522)
 }
 
 func initFromConfigFile(pathToConfig string) (tokenUrl string) {
